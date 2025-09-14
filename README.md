@@ -19,5 +19,5 @@
 ---
 
 <p align="center">
-  <img src="https://i.giphy.com/media/your_chosen_blue_terminal3.gif" width="300px" />
+  <img src="https://i.giphy.com/media/your_chosen_blue_terminal3.gif](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjMwcTI1ZHllNzM5cHJpbHBrbGV3M3RyajU2em05NHpjYXRsamxkciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/78XCFBGOlS6keY1Bil/giphy.gif)" width="300px" />
 </p>
