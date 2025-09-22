@@ -1,19 +1,27 @@
 #ifndef MINISHELL_H
+# include <stdio.h>
+
+typedef enum e_node_type
+{
+        NODE_COMMAND,
+        NODE_PIPE,
+        NODE_REDIRECT,
+        NODE_OR,
+        NODE_AND,
+        NODE_GROUP
+}       t_node_type;
 
 typedef struct s_node
 {
-	int	data;	
-	struct s_node *left_leaf;
-	struct s_node *right_leaf;
+	t_node_type	type;
+	char		**av;
+	char		*redirect_file;
+	int		redirect_type;	
+	struct s_node	*left;
+	struct s_node	*right;
 
 }	t_node;
 
-typedef struct s_arvore
-{
-	t_node *root;
-}	t_arvore;
-
-
-
+int main();
 
 #endif
