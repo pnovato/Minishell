@@ -1,5 +1,8 @@
 #ifndef MINISHELL_H
 # include <stdio.h>
+# include <stdlib.h>
+# include <errno.h>
+# include "../libft/libft.h"
 
 typedef enum e_node_type
 {
@@ -22,6 +25,27 @@ typedef struct s_node
 
 }	t_node;
 
-int main();
+//essa estrutura é necessária pq vamos ter que ter o nosso proprio ambiente de execução.
+//No subject tem umas built-ins:"unset,export" que se usarmos na envp[] normal, ela não executa
+//pq não podemos modificar diretamente esse array (char **envp), quando precisamos modificar
+//o ambiente na nossa minishell.
+typedef struct s_env
+{
+	char	*key;
+	char	*value;
+	struct s_env	*next;
+}	t_env;
+
+// main.c
+int main(int ac, char **av, char **envp);
+void    print_env_list(t_env *env);
+
+// source/list_utils
+t_env	*create_env_node(char *key, char *value);
+
+// source/pre_expansion
+t_env   *envp_to_list(char **envp);
+
+
 
 #endif
