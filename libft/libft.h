@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 11:41:41 by pnovato-          #+#    #+#             */
-/*   Updated: 2025/08/14 18:04:37 by pnovato-         ###   ########.fr       */
+/*   Updated: 2025/09/23 16:16:21 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int		ft_isascii(int c);
 int		ft_isalnum(int c);
 int		ft_isprint(int c);
 int		ft_toupper(int c);
+int		ft_strcmp(char *s1, char *s2);
 int		ft_tolower(int c);
 int		ft_lstsize(t_list *lst);
 int		ft_atoi(const char *str);
