@@ -5,7 +5,7 @@ LIBFT_DIR = libft
 SRC_DIR = ./source/
 OBJ_DIR = ./objs/
 LIBFT = $(LIBFT_DIR)/libft.a
-SRC = main.c
+SRC = main.c pre_expansion/env_to_list.c list_utils/new_node.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
