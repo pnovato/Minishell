@@ -1,6 +1,8 @@
 #ifndef MINISHELL_H
 # include <stdio.h>
 # include <stdlib.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 # include <errno.h>
 # include "../libft/libft.h"
 
@@ -19,7 +21,7 @@ typedef struct s_node
 	t_node_type	type;
 	char		**av;
 	char		*redirect_file;
-	int		redirect_type;	
+	int		redirect_type;
 	struct s_node	*left;
 	struct s_node	*right;
 

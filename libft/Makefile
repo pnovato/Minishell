@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+         #
+#    By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/30 14:57:03 by pnovato-          #+#    #+#              #
-#    Updated: 2025/09/21 17:36:52 by pnovato-         ###   ########.fr        #
+#    Updated: 2025/09/23 16:28:01 by matheusless      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -61,7 +61,8 @@ ft_printf/ft_myputnptr.c \
 ft_printf/ft_myputstr.c \
 ft_printf/ft_myputchar.c \
 ft_printf/ft_myputhex.c \
-ft_printf/ft_printf.c
+ft_printf/ft_printf.c \
+ft_strcmp.c
 
 BONUS = ft_lstnew_bonus.c \
 ft_lstadd_front_bonus.c \
@@ -94,7 +95,7 @@ clean:
 fclean: clean
 	$(REMOVE) $(NAME)
 
-re: fclean all 
+re: fclean all
 
 .PHONY: all clean fclean re
 
