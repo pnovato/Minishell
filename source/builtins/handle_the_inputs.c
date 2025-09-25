@@ -6,7 +6,7 @@
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 14:20:17 by matheusless       #+#    #+#             */
-/*   Updated: 2025/09/25 14:29:24 by matheusless      ###   ########.fr       */
+/*   Updated: 2025/09/25 16:43:41 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,16 @@ void	handle_the_inputs(char *input, t_env *env_list)
 	if (!args || !args[0])
 		return ;
 
-	if (strcmp(args[0], "echo") == 0)
+	if (ft_strcmp(args[0], "echo") == 0)
 		builtin_echo(args);
-	else if (strcmp(args[0], "pwd") == 0)
+	else if (ft_strcmp(args[0], "pwd") == 0)
 		builtin_pwd();
-	else if (strcmp(args[0], "cd") == 0)
+	else if (ft_strcmp(args[0], "cd") == 0)
 		builtin_cd(args);
-	else if (strcmp(args[0], "exit") == 0)
+	else if (ft_strcmp(args[0], "exit") == 0)
 		builtin_exit(args);
 	else
-		printf("Comando não reconhecido: %s\n", args[0]);
+		ft_printf("Comando não reconhecido: %s\n", args[0]);
 
 	i = 0;
 	while (args[i])

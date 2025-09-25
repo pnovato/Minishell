@@ -13,7 +13,7 @@ void    builtin_cd(char **args)
             ft_putendl_fd("cd: OLDPWD not set", 2);
             return ;
         }
-        printf("%s\n", path);
+        ft_printf("%s\n", path);
     }
     else
         path = args[1] ? args[1] : getenv("HOME");

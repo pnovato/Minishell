@@ -9,5 +9,5 @@ void	builtin_pwd(void)
 		perror("pwd");
 		return ;
 	}
-	printf("%s\n", cwd);
+	ft_printf("%s\n", cwd);
 }
