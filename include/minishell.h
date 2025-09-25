@@ -1,4 +1,5 @@
 #ifndef MINISHELL_H
+# define MINISHELL_H
 # include <stdio.h>
 # include <stdlib.h>
 # include <readline/readline.h>
@@ -47,7 +48,7 @@ t_env	*create_env_node(char *key, char *value);
 
 // source/pre_expansion
 t_env   *envp_to_list(char **envp);
-
-
+//Funcão que vai tratar de cada comando builtin
+void	handle_the_inputs(char *input, t_env *env_list);
 
 #endif
