@@ -8,7 +8,7 @@ OBJ_DIR = ./objs/
 LIBFT = $(LIBFT_DIR)/libft.a
 LIBS = -lreadline
 SRC = main.c pre_expansion/env_to_list.c list_utils/new_node.c
-BUILTINS_SRC = cd.c pwd.c
+BUILTINS_SRC = builtin_cd.c builtin_pwd.c builtin_echo.c builtin_exit.c handle_the_inputs.c
 
 OBJ =	$(addprefix $(OBJ_DIR), $(SRC:.c=.o)) \
 		$(addprefix $(OBJ_DIR)$(BUILTINS_DIR), $(BUILTINS_SRC:.c=.o))

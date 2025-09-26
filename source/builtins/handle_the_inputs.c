@@ -6,7 +6,7 @@
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 14:20:17 by matheusless       #+#    #+#             */
-/*   Updated: 2025/09/26 09:13:46 by matheusless      ###   ########.fr       */
+/*   Updated: 2025/09/26 14:09:23 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	handle_the_inputs(char *input, t_env *env_list)
 	else if (ft_strcmp(args[0], "pwd") == 0)
 		builtin_pwd();
 	else if (ft_strcmp(args[0], "cd") == 0)
-		builtin_cd(args);
+		builtin_cd(args, env_list);
 	else if (ft_strcmp(args[0], "exit") == 0)
 		builtin_exit(args);
 	else

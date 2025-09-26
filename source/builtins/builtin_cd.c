@@ -1,36 +1,39 @@
 #include "../../include/builtins.h"
 
-void    builtin_cd(char **args)
+void	builtin_cd(char **args, t_env *env_list)
+
 {
-    char    cwd[1024];
-    char    *path;
+	(void)env_list;
 
-    if (args[1] && ft_strcmp(args[1], "-") == 0)
-    {
-        path = getenv("OLDPWD");
-        if (!path)
-        {
-            ft_putendl_fd("cd: OLDPWD not set", 2);
-            return ;
-        }
-        ft_printf("%s\n", path);
-    }
-    else
-        path = args[1] ? args[1] : getenv("HOME");
+	char	cwd[1024];
+	char	*path;
 
-    if (!path)
-    {
-        ft_putendl_fd("cd: HOME not set", 2);
-        return ;
-    }
-    if (getcwd(cwd, sizeof(cwd)) == NULL)
-    {
-        perror("cd: getcwd");
-        return ;
-    }
-    if (chdir(path) != 0)
-    {
-        perror("cd");
-        return ;
-    }
+	if (args[1] && ft_strcmp(args[1], "-") == 0)
+	{
+		path = getenv("OLDPWD");
+		if (!path)
+		{
+			ft_putendl_fd("cd: OLDPWD not set", 2);
+			return ;
+		}
+		ft_printf("%s\n", path);
+	}
+	else
+		path = args[1] ? args[1] : getenv("HOME");
+
+	if (!path)
+	{
+		ft_putendl_fd("cd: HOME not set", 2);
+		return ;
+	}
+	if (getcwd(cwd, sizeof(cwd)) == NULL)
+	{
+		perror("cd: getcwd");
+		return ;
+	}
+	if (chdir(path) != 0)
+	{
+		perror("cd");
+		return ;
+	}
 }
