@@ -12,15 +12,33 @@ void	print_env_list(t_env *env)
 int main(int ac, char **av, char **envp)
 {
 	t_env	*env_list;
+	char	*line;
+	char	*expanded;
+	int	last_exit = 42;
 	(void)ac;
 	(void)av;
 	env_list = envp_to_list(envp);
-	if(!env_list)
+	while (1)
 	{
-		printf("Erro ao criar env_list.\n");
-		return (1);
+		line = readline("minishell> ");
+		if (!line)
+		{
+			printf("exit\n");
+			break;
+		}
+		if (*line)
+			add_history(line);
+		if (ft_strcmp(line, "exit") == 0)
+		{
+			free(line);
+			break;
+		}
+		expanded = expand_env_variables(line, env_list, last_exit);
+		printf("expandido: %s\n", expanded);
+		free(expanded);
+		free(line);
 	}
-	print_env_list(env_list);
+	//free_env_list(env_list);
 	return (0);
 }
 
