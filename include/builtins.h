@@ -6,7 +6,7 @@
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:34:06 by matheusless       #+#    #+#             */
-/*   Updated: 2025/09/25 14:18:10 by matheusless      ###   ########.fr       */
+/*   Updated: 2025/09/26 11:41:31 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <string.h>
 # include <unistd.h>
 
+void	handle_the_inputs(char *input, t_env *env_list);
 void	builtin_echo(char **args);
 void	builtin_pwd(void);
 void	builtin_cd(char **args);

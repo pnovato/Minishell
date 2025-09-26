@@ -1,4 +1,5 @@
 #include"../include/minishell.h"
+#include "../include/builtins.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -23,6 +24,7 @@ void	minishell_loop(t_env *env_list)
 			free(input);
 			break ;
 		}
+		handle_the_inputs(input, env_list);
 		free(input);
 	}
 }

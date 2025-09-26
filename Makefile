@@ -3,12 +3,15 @@ CC = cc
 C_FLAGS = -Wall -Werror -Wextra -g
 LIBFT_DIR = libft
 SRC_DIR = ./source/
+BUILTINS_DIR = builtins/
 OBJ_DIR = ./objs/
 LIBFT = $(LIBFT_DIR)/libft.a
 LIBS = -lreadline
 SRC = main.c pre_expansion/env_to_list.c list_utils/new_node.c
+BUILTINS_SRC = cd.c pwd.c
 
-OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
+OBJ =	$(addprefix $(OBJ_DIR), $(SRC:.c=.o)) \
+		$(addprefix $(OBJ_DIR)$(BUILTINS_DIR), $(BUILTINS_SRC:.c=.o))
 
 all: $(LIBFT) $(NAME)
 
@@ -20,12 +23,16 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@mkdir -p $(dir $@)
 	@$(CC) $(C_FLAGS) -c $< -o $@
 
+$(OBJ_DIR)$(BUILTINS_DIR)%.o: $(SRC_DIR)$(BUILTINS_DIR)%.c
+	@mkdir -p $(dir $@)
+	@$(CC) $(C_FLAGS) -c $< -o $@
+
 $(NAME): $(OBJ) $(LIBFT)
 	@echo "building Minishell..."
 	@$(CC) $(C_FLAGS) -I$(LIBFT_DIR) -o $(NAME) $(OBJ) $(LIBFT) $(LIBS)
 	@echo "Minishell ready!"
 
-# > /dev/null redireciona o stdout, e nao mostra nada 
+# > /dev/null redireciona o stdout, e nao mostra nada
 # 2>&1 redireciona os stderr tbm
 
 clean:
