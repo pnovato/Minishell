@@ -1,11 +1,11 @@
 #ifndef MINISHELL_H
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <errno.h>
-# include <readline/readline.h>
-# include <readline/history.h>
 # include "../libft/libft.h"
 
 typedef enum e_node_type
@@ -43,6 +43,7 @@ typedef struct s_env
 // main.c
 int main(int ac, char **av, char **envp);
 void    print_env_list(t_env *env);
+void    minishell_loop(t_env *env_list, int last_exit);
 
 // source/list_utils
 t_env	*create_env_node(char *key, char *value);
@@ -54,6 +55,7 @@ t_env   *envp_to_list(char **envp);
 char    *get_env_value(char *key, t_env *env_list);
 char    *expand_env_variables(char *input, t_env *env_list, int last_exit);
 
-
+//source/3_built_ins
+void	handle_the_inputs(char *input, t_env *env_list);
 
 #endif
