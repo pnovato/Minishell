@@ -5,8 +5,11 @@ LIBFT_DIR = libft
 SRC_DIR = ./source/
 OBJ_DIR = ./objs/
 LIBFT = $(LIBFT_DIR)/libft.a
-LIBS = -lreadline
-SRC = main.c pre_expansion/env_to_list.c list_utils/new_node.c
+SRC = main.c \
+1_pre_expansion/env_to_list.c \
+2_expansion/expand.c \
+list_utils/new_node.c
+
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
@@ -22,7 +25,8 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 
 $(NAME): $(OBJ) $(LIBFT)
 	@echo "building Minishell..."
-	@$(CC) $(C_FLAGS) -I$(LIBFT_DIR) -o $(NAME) $(OBJ) $(LIBFT) $(LIBS)
+	@$(CC) $(C_FLAGS) -I$(LIBFT_DIR) -o $(NAME) $(OBJ) $(LIBFT) -lreadline
+
 	@echo "Minishell ready!"
 
 # > /dev/null redireciona o stdout, e nao mostra nada 
