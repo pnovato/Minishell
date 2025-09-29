@@ -10,6 +10,7 @@ SRC = main.c \
 2_expansion/expand.c \
 list_utils/new_node.c
 
+
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
 all: $(LIBFT) $(NAME)
@@ -25,6 +26,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 $(NAME): $(OBJ) $(LIBFT)
 	@echo "building Minishell..."
 	@$(CC) $(C_FLAGS) -I$(LIBFT_DIR) -o $(NAME) $(OBJ) $(LIBFT) -lreadline
+
 	@echo "Minishell ready!"
 
 # > /dev/null redireciona o stdout, e nao mostra nada 
