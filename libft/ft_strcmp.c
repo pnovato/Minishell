@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strcmp.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlessa-s <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 22:13:34 by mlessa-s          #+#    #+#             */
-/*   Updated: 2024/08/13 22:46:04 by mlessa-s         ###   ########.fr       */
+/*   Updated: 2025/10/05 12:07:31 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int	ft_strcmp(char *s1, char *s2)
+int	ft_strcmp(const char *s1, const char *s2)
 {
 	int	i;
 

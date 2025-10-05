@@ -13,6 +13,11 @@ list_utils/new_node.c \
 3_built_ins/builtin_pwd.c \
 3_built_ins/builtin_echo.c \
 3_built_ins/builtin_exit.c \
+3_built_ins/builtin_env.c \
+3_built_ins/builtins_export.c \
+3_built_ins/builtins_unset.c \
+3_built_ins/remove_env_var.c \
+3_built_ins/update_env_value.c \
 3_built_ins/handle_the_inputs.c
 
 
@@ -34,7 +39,7 @@ $(NAME): $(OBJ) $(LIBFT)
 
 	@echo "Minishell ready!"
 
-# > /dev/null redireciona o stdout, e nao mostra nada 
+# > /dev/null redireciona o stdout, e nao mostra nada
 # 2>&1 redireciona os stderr tbm
 
 clean:
