@@ -13,6 +13,7 @@ typedef enum e_node_type
         NODE_COMMAND,
         NODE_PIPE,
         NODE_REDIRECT,
+	NODE_FILENAME,
         NODE_OR,
         NODE_AND,
         NODE_GROUP
@@ -57,5 +58,8 @@ char    *expand_env_variables(char *input, t_env *env_list, int last_exit);
 
 //source/3_built_ins
 void	handle_the_inputs(char *input, t_env *env_list);
+
+//source/free
+void	free_env_list(t_env *env);
 
 #endif
