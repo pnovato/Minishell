@@ -46,7 +46,7 @@ int main(int ac, char **av, char **envp)
 	(void)av;
 	env_list = envp_to_list(envp);
 	minishell_loop(env_list, last_exit); 
-	//free_env_list(env_list);
+	free_env_list(env_list);
 	return (0);
 }
 

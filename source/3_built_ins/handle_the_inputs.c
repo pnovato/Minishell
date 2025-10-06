@@ -29,6 +29,12 @@ void	handle_the_inputs(char *input, t_env *env_list)
 		builtin_cd(args, env_list);
 	else if (ft_strcmp(args[0], "exit") == 0)
 		builtin_exit(args);
+	else if (ft_strcmp(args[0], "env") == 0)
+		builtin_env(env_list);
+	else if (ft_strcmp(args[0], "export") == 0)
+		builtin_export(args, env_list);
+	else if (ft_strcmp(args[0], "unset") == 0)
+		builtin_unset(args, env_list);
 	else
 		ft_printf("Comando não reconhecido: %s\n", args[0]);
 

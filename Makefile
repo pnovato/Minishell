@@ -13,8 +13,13 @@ list_utils/new_node.c \
 3_built_ins/builtin_pwd.c \
 3_built_ins/builtin_echo.c \
 3_built_ins/builtin_exit.c \
-3_built_ins/handle_the_inputs.c
-
+3_built_ins/builtin_env.c \
+3_built_ins/builtins_export.c \
+3_built_ins/builtins_unset.c \
+3_built_ins/remove_env_var.c \
+3_built_ins/update_env_value.c \
+3_built_ins/handle_the_inputs.c \
+free/free_list.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
@@ -49,6 +54,9 @@ fclean: clean
 	@rm -rf $(OBJ_DIR)
 	@make -C $(LIBFT_DIR) fclean
 	@echo "Full cleaning done!"
+
+valgrind:
+	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes --suppressions=readline.supp ./$(NAME)
 
 re: fclean all
 
