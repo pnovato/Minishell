@@ -63,9 +63,8 @@ ft_printf/ft_myputstr.c \
 ft_printf/ft_myputchar.c \
 ft_printf/ft_myputhex.c \
 ft_printf/ft_printf.c \
-ft_strcmp.c
-
-BONUS = ft_lstnew_bonus.c \
+ft_strcmp.c \
+ft_lstnew_bonus.c \
 ft_lstadd_front_bonus.c \
 ft_lstsize_bonus.c \
 ft_lstlast_bonus.c \
@@ -77,15 +76,11 @@ ft_lstmap_bonus.c
 
 OBJS = $(SRCS:.c=.o)
 
-B_OBJS = $(BONUS:.c=.o)
 
 all:$(NAME)
 
 $(NAME):$(OBJS)
 	$(AR) $(NAME) $(OBJS)
-
-bonus:$(OBJS) $(B_OBJS)
-	$(AR) $(NAME) $(B_OBJS) $(OBJS)
 
 %.o: %.c
 	$(CC) $(FLAGS) -c $< -o $@
