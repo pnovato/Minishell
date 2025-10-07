@@ -38,6 +38,15 @@ void	print_env_list(t_env *env)
 	}
 }
 
+void	print_token_list(t_list *token)
+{
+	while (token)
+	{
+		printf("%s\n", (char *)token->content);
+			token = token->next;
+	}
+}
+
 int main(int ac, char **av, char **envp)
 {
 	t_env	*env_list;

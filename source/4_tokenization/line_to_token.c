@@ -1,4 +1,4 @@
-#include "../../include/minishell.c"
+#include "../../include/minishell.h"
 
 void	before_after_op(char *line, t_list **token, int *i, int *start)
 {
@@ -39,5 +39,6 @@ char	**split_line_to_token(char *line)
 	}
 	if (i > start)
 		ft_lstadd_back(&token, ft_substr(line, start, i - start));
-	return (lst_of_tokens(token));
+	print_token_list(&token);
+	return ("H"/*lst_of_tokens(token)*/);
 }
