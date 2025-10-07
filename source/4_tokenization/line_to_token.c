@@ -1,14 +1,24 @@
 #include "../../include/minishell.h"
 
+void	ft_lstadd_back_token(t_list **token, char *str, int start, int len)
+{
+	t_list	*new;
+	
+	new = ft_lstnew(ft_substr(str, start, len));
+	if (!new)
+		return;
+	ft_lstadd_back(token, new);
+} 
+
 void	before_after_op(char *line, t_list **token, int *i, int *start)
 {
 	int	len;
 	
 	len = (line[*i+1] == line[*i]) ? 2 : 1;
-	ft_lstadd_back(&token, ft_substr(line, i, len));
+	ft_lstadd_back_token(token, line, *i, len);
 	*i += len;
 	while (line[*i] == ' ')
-		*i++;
+		(*i)++;
 	*start = *i;
 }
 
@@ -31,14 +41,14 @@ char	**split_line_to_token(char *line)
 		if (!is_single && !is_double && is_operator(line, i))
 		{	
 			if (i > start)
-				ft_lstadd_back(&token, ft_substr(line, start, i - start));
+				ft_lstadd_back_token(&token, line, start, i - start);
 			before_after_op(line, &token, &i, &start);
 			continue;
 		}
 		i++;		
 	}
 	if (i > start)
-		ft_lstadd_back(&token, ft_substr(line, start, i - start));
-	print_token_list(&token);
-	return ("H"/*lst_of_tokens(token)*/);
+		ft_lstadd_back_token(&token, line, start, i - start);
+	print_token_list(token);
+	return (NULL/*lst_of_tokens(token)*/);
 }

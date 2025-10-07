@@ -23,6 +23,7 @@ void	minishell_loop(t_env *env_list, int last_exit)
 			break ;
 		}
 		handle_the_inputs(input, env_list);
+		split_line_to_token();
 		expanded = expand_env_variables(input, env_list, last_exit);		
 		free(input);
 		free(expanded);
