@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtins_export.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/10 15:24:16 by matheusless       #+#    #+#             */
+/*   Updated: 2025/10/10 16:07:13 by matheusless      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/builtins.h"
 
-void builtin_export(char **args, t_env *env)
+void	builtin_export(char **args, t_env *env)
 {
 	int		i;
 	char	*eq;

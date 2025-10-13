@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/10 15:25:41 by matheusless       #+#    #+#             */
+/*   Updated: 2025/10/10 15:26:19 by matheusless      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -23,7 +35,7 @@ void	minishell_loop(t_env *env_list, int last_exit)
 			break ;
 		}
 		handle_the_inputs(input, env_list);
-		expanded = expand_env_variables(input, env_list, last_exit);		
+		expanded = expand_env_variables(input, env_list, last_exit);
 		free(input);
 		free(expanded);
 	}
@@ -38,15 +50,16 @@ void	print_env_list(t_env *env)
 	}
 }
 
-int main(int ac, char **av, char **envp)
+int	main(int ac, char **av, char **envp)
 {
 	t_env	*env_list;
-	int	last_exit = 42;
+	int		last_exit;
+
+	last_exit = 42;
 	(void)ac;
 	(void)av;
 	env_list = envp_to_list(envp);
-	minishell_loop(env_list, last_exit); 
+	minishell_loop(env_list, last_exit);
 	free_env_list(env_list);
 	return (0);
 }
-

@@ -39,7 +39,7 @@ $(NAME): $(OBJ) $(LIBFT)
 
 	@echo "Minishell ready!"
 
-# > /dev/null redireciona o stdout, e nao mostra nada 
+# > /dev/null redireciona o stdout, e nao mostra nada
 # 2>&1 redireciona os stderr tbm
 
 clean:
