@@ -1,37 +1,33 @@
 #!/usr/bin/expect -f
 
-# args: minishell caminho, comando
 set minishell [lindex $argv 0]
 set cmd [lindex $argv 1]
 
-# não mostra log automático
 log_user 0
 
-# inicia o minishell
 spawn $minishell
 
-# espera pelo prompt
 expect {
-    -re "minishell\\\$ $" {}
+    -re "minishell\\$ $" {}
     timeout { puts "ERRO: prompt não apareceu"; exit 1 }
 }
 
-# manda o comando (sem aspas extras)
 send -- "$cmd\n"
 
-# captura saída até o próximo prompt ou EOF
 expect {
-    -re "minishell\\\$ $" {
-        set output $expect_out(buffer)
+    -re "(.*)minishell\\$ $" {
+        set output $expect_out(1,string)
     }
-    eof {
-        set output $expect_out(buffer)
-    }
+    timeout { set output "" }
 }
 
-# manda exit pra fechar
+set lines [split $output "\n"]
+if {[llength $lines] > 0 && [string trim [lindex $lines 0]] eq $cmd} {
+    set lines [lrange $lines 1 end]
+}
+set cleaned_output [join $lines "\n"]
+
 send -- "exit\n"
 expect eof
 
-# imprime só a saída capturada
-puts $output
+puts -nonewline $cleaned_output

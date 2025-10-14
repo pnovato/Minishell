@@ -1,621 +1,268 @@
-id,category,command,expected_exit_code,expected_output,description
-1,echo,"echo hello",0,"hello","echo básico"
-2,echo,"echo -n hello",0,"hello","echo com -n"
-3,echo,"echo ''",0,"","echo vazio com aspas simples"
-4,echo,"echo \"\" ",0,"","echo vazio com aspas duplas"
-5,echo,"echo 'a b c' ",0,"a b c","echo com espaços"
-6,echo,"echo \"a b c\" ",0,"a b c","echo com espaços aspas duplas"
-7,echo,"echo $SHELL",0,"$SHELL","echo com variável (padrão bash behavior)"
-8,pwd,"pwd",0,"$(pwd)","pwd retorna diretório atual"
-9,cd,"cd /tmp && pwd",0,"/tmp","cd para /tmp"
-10,cd,"cd .. && pwd",0,"$(pwd)/..","cd up (nota: comparação feita pelo bash vs minishell)"
-11,cd,"mkdir -p tst_dir && cd tst_dir && pwd && cd .. && rmdir tst_dir",0,"","criar e entrar e sair de diretório"
-12,env,"env | grep -E '^PATH='",0,"PATH=","env mostra PATH"
-13,export,"export TEST_MINI=42 && echo $TEST_MINI",0,"42","export variável e echo"
-14,unset,"export TEMP_UNSET=1 && unset TEMP_UNSET && echo \"$TEMP_UNSET\"",0,"","unset remove variável"
-15,exit,"bash -c 'exit 0'",0,"","exit 0 no bash (controle)")
-16,exit,"bash -c 'exit 1' ; echo done",1,"","exit com código 1"
-17,echo,"echo $? ; false ; echo $?",0,"","verifica $? antes/depois (bash behaviour)"
-18,quotes,"echo 'single quoted $HOME'",0,"single quoted $HOME","aspas simples não expandem variáveis"
-19,quotes,"echo \"double quoted $HOME\"",0,"$HOME","aspas duplas expandem variáveis"
-20,quotes,"echo mixed'quote'\"test\"",0,"mixedquotetest","mistura de aspas"
-21,pipes,"echo hello | cat",0,"hello","pipe simples"
-22,pipes,"printf 'a\nb\n' | wc -l",0,"2","pipe com wc"
-23,pipes,"echo foo | tr a-z A-Z",0,"FOO","pipe com tr"
-24,redirection,"> file.txt; echo hello > file.txt && cat file.txt && rm file.txt",0,"hello","redireção simples > e leitura"
-25,redirection,">> file.txt; echo a > file.txt; echo b >> file.txt; cat file.txt; rm file.txt",0,"a\nb","append >>"
-26,redirection,"echo foo > file1 && echo bar > file2 && cat file1 file2 && rm file1 file2",0,"foo\nbar","múltiplos arquivos"
-27,heredoc,"cat <<EOF\nline1\nEOF",0,"line1","heredoc simples"
-28,heredoc,"cat <<'EOF'\n$HOME\nEOF",0,"$HOME","heredoc com aspas simples não expande variável"
-29,heredoc,"cat <<EOF\n$HOME\nEOF",0,"$HOME","heredoc sem aspas expande variável (bash behaviour)"
-30,builtins,"echo hello && echo world",0,"hello\nworld","sequência com &&"
-31,builtins,"false || echo recovered",0,"recovered","|| funciona (bash behaviour)"
-32,builtins,"export A=1 && (bash -c 'echo $A')",0,"","export deve afetar processo atual, não subshell"
-33,cd,"cd /nonexistent || echo fail",0,"fail","cd para diretório inválido deve dar erro e não crash"
-34,pwd,"pwd >/dev/null; echo $?","0","","pwd exit code zero"
-35,echo,"printf 'x\ry\n' | cat",0,"","carriage return handling (compat)"
-36,files,"touch tfile && [ -f tfile ] && echo yes && rm tfile",0,"yes","criar ficheiro e checar"
-37,files,"ln -s /bin/ls symls && [ -L symls ] && rm symls",0,"","symlink test"
-38,process,"sleep 0.1 & pid=$! ; kill -0 $pid && kill $pid || echo nok",0,"","process background and kill -0"
-39,signal,"(sleep 1 & kill -INT $!) >/dev/null 2>&1 || true",0,"","enviar SIGINT a processo em background"
-40,variables,"VAR1=abc echo $VAR1",0,"","assignment before command not exported to echo in some shells"
-41,expansion,"echo $((1+2))",0,"3","aritmética"
-42,expansion,"echo ${USER}",0,"$USER","expansão variável USER"
-43,expansion,"unset X; echo ${X:-default}",0,"default","parameter expansion com default"
-44,expansion,"X=; echo ${X:-alt}",0,"alt","parameter expansion vazio"
-45,export,"export 1INVALID=3 || echo fail",0,"fail","export com nome inválido deve falhar"
-46,unset,"unset DOES_NOT_EXIST || echo ok",0,"ok","unset variável inexistente não crasha"
-47,builtins,"echo hi; exit 0",0,"hi","comando seguido de exit no mesmo comando (bash -c style)"
-48,pipes,"(echo a; echo b) | while read l; do echo \"line:$l\"; done",0,"line:a\nline:b","pipe com while"
-49,redirection,"echo ok > /dev/null; echo $?","0","","saída descartada"
-50,redirection,"cat < /dev/null || echo empty",0,"empty","leitura de /dev/null"
-51,wildcard,"mkdir -p twc && touch twc/a twc/b && (ls twc/* | wc -w) && rm -r twc",0,"2","wildcards no diretório atual"
-52,wildcard,"touch file.one file.two && echo file.* | xargs -n1 basename | sort | tr '\\n' ' ' && rm file.one file.two",0,"file.one file.two ","lista de wildcards"
-53,pipe_error,"false | true ; echo $?",0,"0","pipe com falso seguido de true - exit code do último comando"
-54,pipe_chain,"echo a | sed 's/a/A/' | tr A-Z a-z",0,"a","cadeia de pipes"
-55,quotes,"echo \"escapes \\\" inside\"",0,"escapes \" inside","aspas com escape"
-56,exit,"bash -c 'exit 255'; echo $?","255","","exit com 255"
-57,exit,"bash -c 'exit 256'; echo $?","0","","exit 256 wrap em bash POSIX (256 mod 256 = 0)"
-58,heredoc,"cat <<EOF > hdtmp\nabc\nEOF; cat hdtmp; rm hdtmp",0,"abc","heredoc com redirection para ficheiro"
-59,heredoc,"printf 'EOF\n' > hdtmp && rm -f hdtmp || true",0,"","setup herestring placeholder"
-60,io,"echo hello >&2 2>&1 | cat",0,"hello","stderr redirecionado para stdout"
-61,io,"(echo out; echo err >&2) |& sed 's/err/ERR/'",0,"out\nERR","pipe stderr/stdout (bash &| syntax may not be portable)"
-62,builtins,"printf 'a' && printf 'b' && echo",0,"ab","printf sem newline"
-63,builtins,"export TMP_TEST=abc; bash -c 'echo $TMP_TEST' || echo subfailed",0,"","export no parent não afeta subshell"
-64,cd,"OLDPWD=$(pwd); cd /tmp; cd -; pwd; cd $OLDPWD >/dev/null",0,"","cd - retorna diretório anterior"
-65,env,"env | grep -E '^HOME=' >/dev/null && echo ok",0,"ok","HOME existe no env"
-66,quotes,"echo \"\$NOT_SET\"",0,"","echo com variável não definida"
-67,redirection,"cat > tmpfile <<EOF\nX\nEOF; cat tmpfile; rm tmpfile",0,"X","heredoc escreve em ficheiro"
-68,pipes,"echo a | (read l; echo received:$l)",0,"received:a","pipe para subshell com read"
-69,signal,"(sleep 0.2; kill -INT $$) & sleep 0.5 || true",0,"","enviar INT ao shell (testa comportamento geral)"
-70,builtin_pwd,"pwd -L",0,"$(pwd)","pwd com -L (pode ser ignorado no minishell)"
-71,builtin_cd,"cd /tmp; pwd; cd - >/dev/null",0,"/tmp","cd e retorno ao anterior"
-72,export,"export VARX='with space' && echo \"$VARX\"",0,"with space","export com espaços entre aspas"
-73,unset,"export A=1; unset A; echo \"$A\"",0,"","unset remove variável"
-74,process,"ps -o comm= -p $$",0,"bash","comando para ver nome do shell do processo atual (pode variar)"
-75,process,"sleep 0.05 & pid=$!; kill $pid 2>/dev/null || true",0,"","cria e mata processo background"
-76,files,"printf 'hello' > tf && od -An -t c tf | tr -s ' ' | sed 's/^ *//' | head -n1 && rm tf",0,"","verificar escrita binária simples"
-77,redirection,"echo hi > tmpf; echo hi >> tmpf; sed -n '1,2p' tmpf; rm tmpf",0,"hi\nhi","> e >> combinados"
-78,pipes,"seq 1 3 | paste -sd',' -",0,"1,2,3","pipe com paste"
-79,quotes,"echo \"a'b\"c'\"",0,"a'bc","combinação de aspas complexa"
-80,quotes,"echo 'a\"b' ",0,"a\"b","aspas simples preservam aspas duplas literal"
-81,builtins,"echo hello; false; echo after",0,"hello\nafter","sequência com comando falso no meio (bash still runs after)"
-82,expansion,"VAR=5; echo ${VAR}x",0,"5x","expansão com sufixo"
-83,expansion,"echo ${UNDEF:-fallback}",0,"fallback","parameter expansion com default"
-84,export,"export EMPTY=''; echo \"${EMPTY:+set}\"",0,"","+ substitution quando vazio"
-85,unset,"unset -v DOES || true; echo ok",0,"ok","unset de variável inexistente continua ok"
-86,pipes,"(echo a; echo b) | while read L; do echo \"L:$L\"; done",0,"L:a\nL:b","pipe para while read"
-87,subshell,"(cd /tmp; pwd) && pwd",0,"/tmp\n$(pwd)","subshell muda cwd apenas dentro"
-88,redirection,"{ echo one; echo two; } > tmpf; cat tmpf; rm tmpf",0,"one\ntwo","agrupamento de comandos para redirection"
-89,heredoc,"cat <<EOF | sed 's/E/e/'\nE\nEOF",0,"e","heredoc canalizado"
-90,wildcard,"mkdir -p wcd && touch wcd/a b wcd/'file space' && ls wcd/* | wc -l && rm -r wcd",0,"3","wildcards com nomes compostos"
-91,wildcard,"touch a1 a2 a10; echo a* | tr ' ' '\\n' | wc -l; rm a1 a2 a10",0,"3","wildcard matching 1-digit and 2-digit"
-92,pipes,"echo 1 2 3 | awk '{for(i=1;i<=NF;i++) print $i}' | wc -l",0,"3","awk + pipe"
-93,fd,"exec 3>tmpfd; echo hi >&3; exec 3>&-; cat tmpfd; rm tmpfd",0,"hi","uso de descritor de ficheiro 3"
-94,fd,"echo hi 1>&2 2>&1 | cat",0,"hi","redirecionar stdout para stderr e vice-versa"
-95,expansion,"VAR='a b'; echo \"$VAR\"",0,"a b","variável com espaço dentro de aspas duplas"
-96,expansion,"echo ${PATH%:*}",0,"","parameter expansion to remove suffix"
-97,builtin_echo,"echo -e \"a\\nb\"",0,"a\nb","echo -e interpreta escapes (bash behaviour)"
-98,exit,"(exit 3); echo last:$?",0,"last:3","exit em subshell não encerra shell pai"
-99,exit,"bash -c 'exit 128' ; echo $?","128","","exit com 128"
-100,heredoc,"cat <<EOF\n$SHELL\nEOF",0,"$SHELL","heredoc should expand variable if not quoted"
-101,heredoc,"cat <<'EOF'\n$SHELL\nEOF",0,"$SHELL","heredoc single-quoted does not expand (literal)"
-102,process,"sleep 0.01 & disown $! || true",0,"","background + disown (compat)"
-103,process,"(sleep 0.01 & echo bg) | cat",0,"bg","background echo with pipe"
-104,files,"printf '1\n2\n3\n' > nums && tail -n +2 nums | head -n1; rm nums",0,"2","tail + head combo"
-105,signals,"(sleep 0.1 & kill -TERM $! ) || true",0,"","envio TERM para processo"
-106,signals,"trap 'echo TRAPPED' INT; kill -INT $$ >/dev/null 2>&1 & sleep 0.2 || true; trap - INT",0,"TRAPPED","trap INT handler no próprio shell (pode variar)"
-107,builtins,"echo hi && (exit 2); echo after ; echo $?","0","","teste de exit em subshell"
-108,expansion,"FOO='a b'; set -- $FOO; echo $1 $2",0,"a b","set positional com expansão"
-109,expansion,"echo ${#FOO}","0","","comprimento de variável indefinida (detalhe)"
-110,pipes,"yes | head -n1",0,"y","yes pipe para head parando output infinito"
-111,redirection,"echo foo > /tmp/testminishell && cat /tmp/testminishell && rm /tmp/testminishell",0,"foo","test com /tmp"
-112,redirection,"(echo a; echo b) > /tmp/tout && sed -n '1,2p' /tmp/tout && rm /tmp/tout",0,"a\nb","group redirection to file"
-113,subshell,"(export X=1; echo $X) ; echo $X",0,"1\n","export em subshell não afeta shell pai"
-114,export,"export VAR_MULTI=1; export VAR_MULTI=2; echo $VAR_MULTI",0,"2","export redefine variável"
-115,unset,"VARZ=5; unset VARZ; echo \"X$VARZX\"",0,"XX","unset resulta em vazio"
-116,builtin_cd,"cd - 2>/dev/null || echo no_prev",0,"no_prev","cd - sem histórico deve falhar"
-117,wildcard,"mkdir -p a/b && touch a/b/c a/d && echo a/* | wc -w && rm -r a",0,"2","wildcard mostrando apenas entries no a/"
-118,wildcard,"mkdir -p xx && touch xx/a.txt xx/b.txt && (ls xx/*.txt | wc -w) && rm -r xx",0,"2","wildcard com extensão"
-119,quotes,"echo \"a\\\"b\"",0,"a\"b","escape dentro de aspas duplas"
-120,quotes,"echo 'a\\'b'",0,"a\\'b","aspas simples não interpretam backslash"
-121,quotes,"echo \"$(echo nested)\"",0,"nested","subshell dentro de aspas"
-122,pipes,"printf 'a\nb\n' | grep b",0,"b","grep via pipe"
-123,pipes,"echo 'one two' | wc -w",0,"2","word count via pipe"
-124,files,"mkdir -p fm && touch fm/f1 && echo ok > fm/f1 && cat fm/f1 && rm -r fm",0,"ok","criar ficheiro dentro de pasta e ler"
-125,fd,"(echo hi 1>&3) 3>tmpfd; cat tmpfd; rm tmpfd",0,"hi","teste fd 3 redir"
-126,builtin_echo,"echo -n '' && echo after",0,"after","echo -n sem output ainda imprime after em novo echo"
-127,expansion,"a=1 b=2; echo $a $b",0,"1 2","múltiplas atribuições e expansão"
-128,expansion,"VAR='a b'; printf '%s\n' $VAR | wc -l",0,"2","word splitting sem aspas"
-129,expansion,"VAR='a b'; printf '%s\n' \"$VAR\" | wc -l",0,"1","com aspas não split"
-130,exit,"(trap 'exit 5' INT; kill -INT $$) || echo after",5,"","trap que faz exit com código"
-131,redirection,"echo hello >tmpf; sed -n '1p' tmpf; rm tmpf",0,"hello","escrever e ler ficheiro temporário"
-132,redirection,"cat <<EOF > tmpf\nZ\nEOF; cat tmpf; rm tmpf",0,"Z","heredoc para tmp file"
-133,heredoc,"cat <<'EOF' > tmpf\n$HOME\nEOF; cat tmpf; rm tmpf",0,"$HOME","heredoc single quoted não expande variáveis"
-134,pipes,"echo a|cat -n",0,"1\ta","cat -n coloca número de linha"
-135,builtins,"export X=Y; bash -c 'echo $X' || echo no",0,"","export parent para subshell não afeta automaticamente"
-136,process,"printf '1' > /dev/null; echo $?",0,"0","comando simples exit code"
-137,process,"(sleep 0.02 & wait $!; echo waited) | cat",0,"waited","wait por background"
-138,signals,"(trap 'echo SIGQUIT' QUIT; kill -QUIT $$) || true",0,"SIGQUIT","trap QUIT"
-139,signals,"(trap 'echo SIGTERM' TERM; kill -TERM $$) || true",0,"SIGTERM","trap TERM"
-140,files,"printf 'x' > filea && printf 'y' > fileb && cat filea fileb; rm filea fileb",0,"xy","concat files"
-141,fd,"exec 4>tmp4; echo hi >&4; exec 4>&-; cat tmp4; rm tmp4",0,"hi","fd 4 usage"
-142,builtins,"echo $((2*3))",0,"6","aritmética com expansão"
-143,expansion,"VAR=abc; echo ${VAR:1:2}",0,"bc","substring expansion"
-144,expansion,"unset V; echo ${V+set}",0,"","+ substitution sem set"
-145,quotes,"echo \"\\$HOME\"",0,"$HOME","escape de $ dentro de aspas duplas"
-146,quotes,"echo '\\$HOME'",0,"\$HOME","aspas simples literal"
-147,pipes,"echo 'a b' | awk '{print $2}'",0,"b","awk extrai campo"
-148,pipes,"printf 'x\n' | sed 's/x/X/'",0,"X","sed transforma"
-149,redirection,"(echo a >&2) 2>err && cat err; rm -f err",0,"a","stderr capturado para ficheiro"
-150,redirection,"(echo ok) > out; cat out; rm out",0,"ok","group output to file"
-151,builtins,"export A=1; env | grep '^A='",0,"A=1","env mostra variavel exportada"
-152,unset,"export B=2; unset B; env | grep '^B=' || echo gone",0,"gone","unset remove da env"
-153,wildcard,"touch tX1 tX2 tY; echo tX* | wc -w; rm tX1 tX2 tY",0,"2","wildcard tX*"
-154,wildcard,"mkdir -p ww && (cd ww; touch a b c; echo * | wc -w); rm -r ww",0,"3","wildcard no cwd"
-155,builtin_cd,"cd /tmp && pwd && cd - >/dev/null",0,"/tmp","cd para /tmp e volta"
-156,builtin_pwd,"pwd >/dev/null; echo $?",0,"0","pwd exit ok"
-157,exit,"(exit 42); echo after",42,"","exit com 42 em subshell"
-158,heredoc,"cat <<EOF\nline with spaces\nEOF",0,"line with spaces","heredoc com espaços"
-159,heredoc,"cat <<EOF\n\tindented\nEOF",0,"\tindented","heredoc com tab (representação literal)"
-160,quotes,"echo \"a\\nb\"",0,"a\nb","escape newline dentro de echo - comportamento depende de printf/echo implementation"
-161,pipes,"(for i in 1 2 3; do echo $i; done) | tac",0,"3\n2\n1","pipe com tac (reverse)"
-162,process,"(sleep 0.01 & echo started) | cat",0,"started","background sinalização"
-163,signal_ctrlc,"printf 'read waiting\n'; read -t 1 || echo timeout",0,"timeout","read com timeout (simular ctrl-C em expect depois)"
-164,signal_ctrld,"printf 'to be closed\n'; cat >/dev/null <<'EOT'\nEOT || true",0,"","comando que termina na input EOF"
-165,multi,"echo a > f1; echo b > f2; cat f1 f2; rm f1 f2",0,"a\nb","múltiplas operações de ficheiro"
-166,multi,"(echo x; echo y) > tmp && cat tmp && rm tmp",0,"x\ny","group write"
-167,builtin_echo,"echo -n 'no_newline' ; echo 'after'",0,"no_newline\nafter","-n seguido por outro echo"
-168,expansion,"X='a b'; set -- $X; echo $#; echo $1",0,"2\na","positional parameters"
-169,expansion,"X='a b'; set -- \"$X\"; echo $#; echo $1",0,"1\na b","positional com aspas"
-170,pipes,"seq 1 5 | awk '{sum+=$1} END {print sum}'",0,"15","somatório via awk"
-171,redirection,"echo line > tmp && tail -n1 tmp && rm tmp",0,"line","tail após escrita"
-172,redirection,"echo hi > tmp; cat < tmp; rm tmp",0,"hi","leitura de ficheiro com <"
-173,builtin_env,"env | grep -E '^HOME=' >/dev/null && echo ok",0,"ok","env contém HOME"
-174,builtin_export,"export XTEST='a b' && bash -c 'echo \"$XTEST\"' || echo fail",0,"","export com espaço entre aspas"
-175,unset,"unset UNDEF; echo $?","0","","unset de indefinido retorna 0 (bash behavior)"
-176,exit,"(exit; echo after) || echo never",0,"after","exit sem código em subshell não termina pai"
-177,wildcard,"mkdir -p w; touch w/a w/b; (cd w; echo * | wc -w); rm -r w",0,"2","wildcard dentro de diretório"
-178,wildcard,"touch .hidden a; echo * | tr ' ' '\\n' | grep -v '^\\.' | wc -l; rm .hidden a",0,"1","wildcard não mostra arquivos ocultos"
-179,quotes,"echo \"a\\\"b\\'c\"",0,"a\"b'c","mix escapes"
-180,quotes,"echo '$HOME and \"quoted\"'",0,"$HOME and \"quoted\"","aspas simples com aspas duplas inside literal"
-181,heredoc,"cat <<EOF\n$(echo inline)\nEOF",0,"inline","heredoc com comando subshell no conteúdo"
-182,pipe_error,"(ls nonexist 2>/dev/null || echo err) | cat",0,"err","comando inválido seguido por fallback"
-183,substitution,"echo $(echo nested) world",0,"nested world","subshell substitution"
-184,redirection,"(echo a > o; echo b >> o; sed -n '1,2p' o; rm o)",0,"a\nb","> e >> combinados"
-185,expansion,"FOO='1  2'; echo $FOO | wc -w",0,"2","splitting com múltiplos espaços"
-186,builtin_cd,"cd ~ && pwd | grep $HOME >/dev/null && cd - >/dev/null",0,"","cd para home e volta"
-187,builtin_pwd,"pwd -P",0,"$(pwd)","pwd -P (físico) comportamento similar"
-188,process,"(sleep 0.02 & echo done) | cat",0,"done","background echo and cat"
-189,files,"printf 'abc' > f && head -c1 f; rm f",0,"a","head -c"
-190,fd,"(exec 5>t5; echo ok >&5; exec 5>&-; cat t5; rm t5)",0,"ok","uso fd 5"
-191,signals,"(trap 'echo gotINT' INT; kill -INT $$) || true",0,"gotINT","trap INT em shell (pode variar)"
-192,signals,"(trap 'echo gotQUIT' QUIT; kill -QUIT $$) || true",0,"gotQUIT","trap QUIT em shell"
-193,files,"printf '1\n2\n3\n' > f && grep 2 f && rm f",0,"2","grep dentro de ficheiro"
-194,quotes,"echo \"a $(echo b) c\"",0,"a b c","subshell dentro de aspas"
-195,pipes,"echo -e 'a\nb\nc' | nl -ba | wc -l",0,"3","nl numerando linhas"
-196,redirection,"{ echo hi; echo ho; } > tmp && cat tmp && rm tmp",0,"hi\nho","group braces redirection"
-197,builtins,"export Z='x'; (echo $Z) | cat",0,"x","export e pipe para subshell"
-198,unset,"export Z='x'; unset Z; env | grep '^Z=' || echo gone",0,"gone","unset remove env"
-199,wildcard,"mkdir -p w && (cd w; touch a b; echo ./* 2>/dev/null) && rm -r w",0,"./a ./b","wildcard com ./ prefix"
-200,quotes,"echo \"\$((1+1))\"",0,"$((1+1))","escape de $ para não avaliar arithmetic"
-201,expansion,"num=10; echo $num",0,"10","variável simples"
-202,expansion,"unset A; echo ${A:-X}",0,"X","default value expansion"
-203,pipe_chain,"echo 'x y z' | cut -d' ' -f2",0,"y","cut extrai campo"
-204,redirection,"printf 'a\nb\n' > f && sed -n '2p' f && rm f",0,"b","sed imprime segunda linha"
-205,heredoc,"cat <<EOF | wc -c\nabc\nEOF",0,"4","heredoc contando chars (inclui newline)"
-206,builtins,"echo hi; false; echo done",0,"hi\ndone","sequência com comando false não impede next unless && usado"
-207,process,"(sleep 0.01 & echo started) >/dev/null; echo ok",0,"ok","background start e retorno imediato"
-208,signals,"(trap 'echo INTCAUGHT' INT; kill -INT $$) || true",0,"INTCAUGHT","trap INT detection"
-209,signals,"(trap '' QUIT; kill -QUIT $$) || true",0,"","ignorar QUIT se trap definido como ''"
-210,files,"touch t1 t2; ls | grep t1 && rm t1 t2",0,"t1","criar e listar arquivos"
-211,fd,"exec 6>tmp6; echo hi >&6; exec 6>&-; cat tmp6; rm tmp6",0,"hi","fd 6 teste"
-212,expansion,"A=hello; echo ${A}world",0,"helloworld","concat expansion"
-213,quotes,"echo \"a\\`echo b\\`c\"",0,"a`echo b`c","backtick literal dentro de aspas"
-214,pipes,"printf 'one\n' | while read l; do echo $l; done",0,"one","pipe para while"
-215,redirection,"exec 7>tmp7; echo hi >&7; exec 7>&-; cat tmp7; rm tmp7",0,"hi","fd 7 usage"
-216,builtins,"export TMPX='1 2'; bash -c 'echo \"$TMPX\"' || true",0,"","export with spaces and subshell"
-217,unset,"unset TMPX; echo ${TMPX:-no}",0,"no","unset and default"
-218,wildcard,"mkdir -p w && touch w/.hidden w/a && (cd w; echo *); rm -r w",0,"a","wildcard hides dotfiles"
-219,wildcard,"touch test1 test2; echo test? | wc -w; rm test1 test2",0,"2","? wildcard matches single char"
-220,quotes,"echo \"'mixed' \\\"quotes\\\"\"",0,"'mixed' \"quotes\"","mix aspas e escapes"
-221,pipes,"echo a b c | tr ' ' '\\n' | wc -l",0,"3","split words into lines"
-222,redirection,"(echo x; echo y) > tmp; wc -l tmp; rm tmp",0,"2","contagem de linhas em ficheiro temporário"
-223,heredoc,"cat <<EOF | grep line\nline\nEOF",0,"line","heredoc piped to grep"
-224,subshell,"echo start; (echo inner; exit 7); echo after; echo $?",0,"start\ninner\nafter\n0","exit em subshell não altera exit do pai"
-225,builtins,"echo hi && false || echo fallback",0,"hi\nfallback","&& e || combinados"
-226,expansion,"S=; echo ${S:-X}",0,"X","var vazia com default"
-227,expansion,"S=0; echo ${S:-X}",0,"0","0 é considerado set, não fallback"
-228,process,"(sleep 0.01 & jobs >/dev/null 2>&1) || true",0,"","jobs builtin para processos background"
-229,signals,"(trap 'echo HUPCAUGHT' HUP; kill -HUP $$) || true",0,"HUPCAUGHT","trap HUP"
-230,signals,"(trap 'echo PIPECAUGHT' PIPE; kill -PIPE $$) || true",0,"PIPECAUGHT","trap PIPE"
-231,files,"printf 'a\nb\n' > f && sed -n '1p' f && rm f",0,"a","sed primeira linha"
-232,fd,"exec 8>tmp8; echo xx >&8; exec 8>&-; cat tmp8; rm tmp8",0,"xx","fd 8 usage"
-233,expansion,"FOO='a=1'; echo $FOO",0,"a=1","variável contendo ="
-234,quotes,"echo \"a\\\nnewline\"",0,"a\nnewline","escape newline dentro de string (note: behavior varies)"
-235,pipes,"seq 1 10 | paste -sd+ - | bc",0,"55","somatório com bc"
-236,redirection,"printf 'l' > f && printf 'o' >> f && cat f && rm f",0,"lo","writing bytes sequentially"
-237,heredoc,"cat <<EOF\n$((2+2))\nEOF",0,"4","heredoc com arithmetic expansion"
-238,builtins,"export X='a b'; echo \"$X\"",0,"a b","export preserva espaços se aspas usadas"
-239,unset,"export X=1; unset X; env | grep '^X=' || echo removed",0,"removed","unset retira da env"
-240,wildcard,"mkdir -p w && (cd w; touch a1 a2 ; echo a* | wc -w); rm -r w",0,"2","wildcard matches prefix"
-241,wildcard,"touch a b c; echo [ab]* | wc -w; rm a b c",0,"2","character class wildcard"
-242,quotes,"echo \"\$((1+2))\" \"literal\"",0,"$((1+2)) literal","escape para não avaliar arithmetic"
-243,pipes,"printf 'a\nb\n' | grep -c b",0,"1","grep -c conta ocorrencias"
-244,redirection,"echo 1 > tmp; echo 2 >> tmp; tail -n1 tmp; rm tmp",0,"2","append e tail"
-245,process,"(sleep 0.02 & disown $! ; echo disowned) | cat",0,"disowned","disown background"
-246,signals,"(trap 'echo SIG' INT; kill -INT $$) || true",0,"SIG","trap INT reage"
-247,signals,"(trap '' INT; kill -INT $$) || true",0,"","trap vazio ignora INT"
-248,builtins,"echo hi > /dev/tty || true",0,"","escrever no tty (pode falhar em non-interactive)"
-249,expansion,"PATH=/bin echo $PATH",0,"/bin","assignment temporario para comando"
-250,expansion,"FOO='a b'; printf '%s\n' \"$FOO\"",0,"a b","print com aspas preserva espaçamento"
-251,redirection,"cat <<EOF > tmp\nok\nEOF; sed -n '1p' tmp; rm tmp",0,"ok","heredoc para tmp file read"
-252,heredoc,"cat <<EOF\n\\$HOME\nEOF",0,"$HOME","heredoc com escape de $"
-253,heredoc,"cat <<'EOF'\n\\$HOME\nEOF",0,"\\$HOME","single-quoted herestring literal preserves backslash"
-254,pipes,"echo x | (read l; echo got:$l)",0,"got:x","pipe para subshell com read"
-255,subshell,"(cd /; pwd); pwd",0,"/\n$(pwd)","subshell cd não altera shell pai"
-256,exit,"(trap 'exit 6' INT; kill -INT $$) || true",6,"","trap que causa exit 6"
-257,files,"echo -n hello > f; printf '%s' \"$(cat f)\"; rm f",0,"hello","ler sem newline"
-258,fd,"exec 9>tmp9; echo hi >&9; exec 9>&-; cat tmp9; rm tmp9",0,"hi","fd 9 test"
-259,expansion,"A=1; B=2; echo $A $B",0,"1 2","duas variáveis"
-260,quotes,"echo \"\\\"inner\\\"\"",0,"\"inner\"","aspas duplas escapadas"
-261,pipes,"(echo -e 'a\nb') | while read l; do echo ok:$l; done",0,"ok:a\nok:b","loop via pipe"
-262,redirection,"(echo one; echo two) > tmp; head -n1 tmp; rm tmp",0,"one","head pega primeira linha"
-263,heredoc,"cat <<EOF\n$(echo hi)\nEOF",0,"hi","heredoc com comando inline"
-264,wildcard,"touch file1 file2; echo file[0-9]* | wc -w; rm file1 file2",0,"2","range wildcard"
-265,wildcard,"mkdir -p d && (cd d; touch a b; echo */ 2>/dev/null) && rm -r d",0,"","wildcard com slash no final (pode variar)"
-266,builtin_cd,"cd /tmp && cd - && pwd",0,"$(pwd)","cd - volta para anterior"
-267,builtin_pwd,"PWD=$(pwd); echo $PWD",0,"$(pwd)","variável PWD é setada"
-268,exit,"bash -c 'exit 127'; echo $?",127,"","exit 127"
-269,signals,"(trap 'echo GOT' SIGINT; kill -SIGINT $$) || true",0,"GOT","trap via nome do sinal"
-270,process,"(sleep 0.01 & echo $! ) | cat",0,"","print PID do background"
-271,files,"printf 'a\nb\n' > f && sed -n '2p' f; rm f",0,"b","sed line 2"
-272,fd,"exec 10>t10; echo hi >&10; exec 10>&-; cat t10; rm t10",0,"hi","fd 10 usage"
-273,expansion,"VAR='a b c'; for i in $VAR; do echo $i; done | wc -l",0,"3","for iterando com split"
-274,quotes,"echo \"'single'\" '\"double\"'",0,"'single' \"double\"","prints both quoted strings"
-275,pipes,"echo 'a b' | awk '{print NF}'",0,"2","awk NF count"
-276,redirection,"printf 'x\n' > f; sed -n '1p' f; rm f",0,"x","write/read file"
-277,heredoc,"cat <<EOF | wc -l\n1\n2\n3\nEOF",0,"3","heredoc contar linhas"
-278,builtins,"echo test; exit 0",0,"test","echo antes do exit"
-279,unset,"export ZZZ=1; unset ZZZ; echo ${ZZZ:-ok}",0,"ok","unset e default"
-280,wildcard,"touch a b c; rm a b c || true; echo done",0,"done","criar e remover"
-281,wildcard,"mkdir -p xx && (cd xx; touch a b c; echo .* | wc -w); rm -r xx",0,"2","wildcard .* inclui . and .. (note: shell globbing usually excludes ..)"
-282,expansion,"echo ${PATH%%:*}",0,"","parameter expansion remove longest suffix"
-283,quotes,"echo 'complex \"mix\" and $HOME' ",0,"complex \"mix\" and $HOME","aspas simples preservam tudo"
-284,pipes,"echo a|rev",0,"a","rev reverses"
-285,redirection,"echo hi > t && sed -n '1p' t && rm t",0,"hi","temp file read"
-286,heredoc,"cat <<EOF\n$RANDOM\nEOF",0,"$RANDOM","heredoc may expand RANDOM (bash-specific)"
-287,builtins,"export A=one; echo $A",0,"one","export básico"
-288,unset,"unset A; echo ${A:-no}",0,"no","unset default"
-289,exit,"bash -c 'exit 2'; echo $?","2","","exit code 2"
-290,signals,"(trap 'echo signal' INT; kill -INT $$) || true",0,"signal","trap INT"
-291,process,"(sleep 0.01 & echo ok) | cat",0,"ok","background echo"
-292,files,"mkdir -p mt && touch mt/aa mt/bb && ls mt | wc -w && rm -r mt",0,"2","listar arquivos no dir"
-293,fd,"exec 11>t11; echo y >&11; exec 11>&-; cat t11; rm t11",0,"y","fd 11 test"
-294,expansion,"A=hello; printf '%s' \"$A\"",0,"hello","print variable"
-295,quotes,"echo \"a\\t b\"",0,"a\\t b","escape de tab em echo (comportamento de echo varia)"
-296,pipes,"printf '1\n2\n3\n' | awk '{s+=$1} END {print s}'",0,"6","somatório awk"
-297,redirection,"echo hi > /tmp/tmin && sed -n '1p' /tmp/tmin && rm /tmp/tmin",0,"hi","tmp file in /tmp"
-298,heredoc,"cat <<EOF\n$PWD\nEOF",0,"$PWD","heredoc expansion PWD"
-299,builtins,"echo ok && exit 0",0,"ok","echo then exit"
-300,unset,"unset DOES; echo ${DOES:-no}",0,"no","unset with default"
-301,wildcard,"mkdir -p wtest && (cd wtest; touch a b c; echo .* 2>/dev/null) && rm -r wtest",0,"","wildcard dotfiles test"
-302,quotes,"echo \"a\\$b\"",0,"a$b","escape dollar inside quotes"
-303,pipes,"printf 'a\nb\nc' | grep -n b",0,"2:b","grep -n mostra linha"
-304,redirection,"echo start > t && echo end >> t; cat t; rm t",0,"start\nend","combined > and >>"
-305,heredoc,"cat <<EOF\n$(echo h)\nEOF",0,"h","heredoc com substituição de comandos"
-306,builtins,"export X='x'; bash -c 'echo $X' || true",0,"","export parent to subshell behavior check"
-307,unset,"export Z=1; env | grep '^Z=' >/dev/null && unset Z && env | grep '^Z=' || echo gone",0,"gone","unset verifica env"
-308,exit,"(exit 254); echo after",254,"","exit 254 code"
-309,process,"(sleep 0.01 & echo $! ) | cat",0,"","PID do processo background"
-310,signals,"(trap 'echo tr' INT; kill -INT $$) || true",0,"tr","trap prints on INT"
-311,files,"mkdir -p tf && (cd tf; touch f1; ls | grep f1) && rm -r tf",0,"f1","touch e ls"
-312,fd,"exec 12>t12; echo ok >&12; exec 12>&-; cat t12; rm t12",0,"ok","fd 12 usage"
-313,expansion,"A=' x '; echo \"${A# }\"",0,"x ","remover prefixo space"
-314,quotes,"echo \"a\\n b\"",0,"a\\n b","literal \\n in echo depending on implementation"
-315,pipes,"seq 1 3 | xargs -n1 echo",0,"1\n2\n3","xargs splits args"
-316,redirection,"cat > tmp <<EOF\nline\nEOF; cat tmp; rm tmp",0,"line","heredoc writing file"
-317,heredoc,"cat <<'EOF'\n$((1+1))\nEOF",0,"$((1+1))","single-quoted heredoc no expansion"
-318,builtins,"echo test && false; echo after",0,"test\nafter","&& false não impede comando seguinte sem &&"
-319,unset,"unset NOEX || echo ok",0,"ok","unset não-fatal para variavel inexistente"
-320,wildcard,"mkdir -p w && (cd w; touch a b c; echo a* | wc -w); rm -r w",0,"1","a* matches only a*"
-321,quotes,"echo \"'a' \\\"b\\\"\"",0,"'a' \"b\"","mix quotes and escapes"
-322,pipes,"printf 'aaa\nbbb\n' | sed -n '2p'",0,"bbb","sed prints second line"
-323,redirection,"printf 'a' > f; printf 'b' >> f; sed -n '1,2p' f; rm f",0,"a\nb","> and >> usage"
-324,heredoc,"cat <<EOF\n$(printf '%s\n' foo)\nEOF",0,"foo","heredoc with printf substitution"
-325,builtins,"export TEST=ok; echo $TEST",0,"ok","export simple"
-326,unset,"TEMP=1; unset TEMP; echo ${TEMP:-no}",0,"no","unset default check"
-327,exit,"bash -c 'exit 3' ; echo $?","3","","exit code propagation"
-328,signals,"(trap 'echo got' INT; kill -INT $$) || true",0,"got","trap INT behavior"
-329,process,"(sleep 0.005 & wait $!; echo done) | cat",0,"done","wait for background"
-330,files,"echo aa > f; tail -c1 f; rm f",0,"a","tail last char"
-331,fd,"exec 13>t13; echo hi >&13; exec 13>&-; cat t13; rm t13",0,"hi","fd 13 usage"
-332,expansion,"VAR='a'; echo ${VAR}b",0,"ab","expansion concat"
-333,quotes,"echo \"text\\\"more\"",0,"text\"more","quoted escaped quote"
-334,pipes,"printf '1\n2' | paste -sd+ - | bc",0,"3","paste + bc sum"
-335,redirection,"printf '1\n' > f; printf '2\n' >> f; nl f; rm f",0,"1\t1\n2\t2","nl shows numbered lines"
-336,heredoc,"cat <<EOF\n$SHELL\nEOF",0,"$SHELL","heredoc variable expansion check"
-337,builtins,"env | grep SHELL || true",0,"","env includes SHELL"
-338,unset,"export AAA=1; unset AAA; env | grep '^AAA=' || echo removed",0,"removed","unset verify"
-339,wildcard,"touch aa ab ac; echo a? | wc -w; rm aa ab ac",0,"3","? wildcard matches single char"
-340,wildcard,"mkdir -p w && (cd w; touch f1 f2; echo f* | wc -w); rm -r w",0,"2","wildcard prefix"
-341,quotes,"echo \"\\$(echo no)\"",0,"$(echo no)","escaped subshell prints literally"
-342,pipes,"echo -e '1\n2\n3' | awk 'NR==2{print $0}'",0,"2","awk print specific NR"
-343,redirection,"cat > tmp <<EOF\nok\nEOF; wc -l tmp; rm tmp",0,"1","heredoc file line count"
-344,heredoc,"cat <<'EOF'\n$PATH\nEOF",0,"$PATH","single quoted heredoc no expansion"
-345,builtins,"printf '%s\n' hello; exit 0",0,"hello","printf then exit"
-346,unset,"unset DOESNT; echo $?","0","","unset on non-existent var returns 0"
-347,exit,"bash -c 'exit 250'; echo $?",250,"","exit 250"
-348,signals,"(trap 'echo SIG' HUP; kill -HUP $$) || true",0,"SIG","trap HUP"
-349,process,"(sleep 0.01 & echo bg) | cat",0,"bg","background echo"
-350,files,"mkdir -p td && (cd td; touch a; ls | grep a); rm -r td",0,"a","touch and list"
-351,fd,"exec 14>t14; echo ok >&14; exec 14>&-; cat t14; rm t14",0,"ok","fd 14 usage"
-352,expansion,"A=1 B=2; echo $A$B",0,"12","concat variables"
-353,quotes,"echo \"a\\\nline\"",0,"a\nline","escaped newline literal"
-354,pipes,"printf 'x\n' | while read L; do echo $L; done",0,"x","pipe with read"
-355,redirection,"(echo a; echo b) > /tmp/t; sed -n '1p' /tmp/t; rm /tmp/t",0,"a","group to /tmp file"
-356,heredoc,"cat <<EOF\n$((3*3))\nEOF",0,"9","heredoc arithmetic expansion"
-357,builtins,"export E=1; echo $E",0,"1","export variable"
-358,unset,"export E=1; unset E; echo ${E:-ok}",0,"ok","unset and default"
-359,exit,"(exit 1); echo after",1,"","exit 1 code"
-360,signals,"(trap 'echo G' QUIT; kill -QUIT $$) || true",0,"G","trap QUIT reaction"
-361,process,"(sleep 0.02 & echo started) | cat",0,"started","bg start and pipe"
-362,files,"printf 'a\nb\nc\n' > f && tail -n2 f; rm f",0,"b\nc","tail last two"
-363,fd,"exec 15>t15; echo ok >&15; exec 15>&-; cat t15; rm t15",0,"ok","fd 15 usage"
-364,expansion,"FOO=' a b '; echo \"${FOO# }\"",0,"a b ","trim leading space via parameter expansion"
-365,quotes,"echo \"\$HOME literal\"",0,"$HOME literal","escape $ inside quotes"
-366,pipes,"seq 1 4 | xargs -n2 echo",0,"1 2\n3 4","xargs group args"
-367,redirection,"echo a > f; sed -n '1p' f; rm f",0,"a","write and read file"
-368,heredoc,"cat <<EOF\nline\nEOF",0,"line","heredoc simple repeat"
-369,builtins,"echo ok && exit 0",0,"ok","echo and exit"
-370,unset,"unset NO || echo ok",0,"ok","unset non-existent ok"
-371,wildcard,"touch t1 t2 t3; echo t* | wc -w; rm t1 t2 t3",0,"3","wildcard t*"
-372,wildcard,"mkdir -p wd && (cd wd; touch a b; echo ? | wc -w); rm -r wd",0,"2","? wildcard inside dir"
-373,quotes,"echo 'a\"b' \"c'd\"",0,"a\"b\nc'd","multiple quoted strings printed sequentially"
-374,pipes,"printf '1\n2\n3\n' | tail -n1",0,"3","tail last line via pipe"
-375,redirection,"echo hi > /tmp/t1 && cat /tmp/t1 && rm /tmp/t1",0,"hi","tmp file test"
-376,heredoc,"cat <<'EOF'\n$((2+2))\nEOF",0,"$((2+2))","no expansion in single-quoted heredoc"
-377,builtins,"export X=hello; echo $X",0,"hello","export basic check"
-378,unset,"export X=1; unset X; env | grep '^X=' || echo removed",0,"removed","unset remove env var check"
-379,exit,"bash -c 'exit 8'; echo $?",8,"","exit with 8"
-380,signals,"(trap 'echo X' INT; kill -INT $$) || true",0,"X","trap INT prints"
-381,process,"(sleep 0.02 & pid=$!; kill $pid; wait $pid 2>/dev/null || true; echo done) | cat",0,"done","kill and wait"
-382,files,"mkdir -p tdir && touch tdir/a tdir/b && ls tdir | wc -w && rm -r tdir",0,"2","dir listing count"
-383,fd,"exec 16>t16; echo hi >&16; exec 16>&-; cat t16; rm t16",0,"hi","fd 16 usage"
-384,expansion,"A='x y'; for v in \"$A\"; do echo $v; done | wc -l",0,"1","for with quoted variable yields single item"
-385,quotes,"echo \"a\\\"b\\\"c\"",0,"a\"b\"c","escaped quotes inside"
-386,pipes,"printf 'a\nb\n' | grep -n a",0,"1:a","grep-n with line"
-387,redirection,"{ echo one; echo two; } > /tmp/t2; sed -n '2p' /tmp/t2; rm /tmp/t2",0,"two","group redirect then read"
-388,heredoc,"cat <<EOF\n$(printf '%s' hi)\nEOF",0,"hi","heredoc with printf inline"
-389,builtins,"export XYZ=abc; echo $XYZ",0,"abc","export and echo"
-390,unset,"unset XYZ; echo ${XYZ:-no}",0,"no","unset default check"
-391,exit,"bash -c 'exit 99'; echo $?",99,"","exit 99"
-392,signals,"(trap 'echo OK' INT; kill -INT $$) || true",0,"OK","trap OK"
-393,process,"(sleep 0.01 & echo started) | cat",0,"started","bg echo"
-394,files,"printf 'hello' > f && head -c3 f; rm f",0,"hel","head -c"
-395,fd,"exec 17>t17; echo hey >&17; exec 17>&-; cat t17; rm t17",0,"hey","fd 17 usage"
-396,expansion,"A=' a '; echo \"${A% }\"",0," a","remove trailing space"
-397,quotes,"echo \"a\\$b\"","0","a$b","escape $ inside double quotes explicit (note: CSV second field reserved)
-398,pipes,"echo a | sed 's/a/b/'",0,"b","sed substitution via pipe"
-399,redirection,"echo '1' > tmp && echo '2' >> tmp && sort tmp; rm tmp",0,"1\n2","sort file"
-400,heredoc,"cat <<EOF\nend\nEOF",0,"end","heredoc basic"
-401,builtins,"echo x && exit 0",0,"x","echo + exit sequence"
-402,unset,"unset ABC; echo ${ABC:-none}",0,"none","unset default"
-403,exit,"bash -c 'exit 11'; echo $?",11,"","exit 11"
-404,signals,"(trap 'echo S' HUP; kill -HUP $$) || true",0,"S","trap HUP check"
-405,process,"(sleep 0.01 & echo bg) | cat",0,"bg","background echo testing"
-406,files,"mkdir -p t && touch t/f && (ls t | grep f) && rm -r t",0,"f","simple file in dir"
-407,fd,"exec 18>t18; echo hi >&18; exec 18>&-; cat t18; rm t18",0,"hi","fd 18 usage"
-408,expansion,"S='\t'; echo \"$S\" | od -An -t c | sed 's/^ *//' | head -n1",0,"","tab character expansion inspect"
-409,quotes,"echo \"a\\`b\\`\"",0,"a`b`","backticks preserved in double quotes as literal"
-410,pipes,"seq 1 3 | paste -sd',' -",0,"1,2,3","paste serial with comma"
-411,redirection,"(echo a; echo b) > tmp; awk 'NR==2{print $0}' tmp; rm tmp",0,"b","awk second line"
-412,heredoc,"cat <<EOF\n$SHELL\nEOF",0,"$SHELL","heredoc variable expansion check repeat"
-413,builtins,"export TST=1; echo $TST",0,"1","export check"
-414,unset,"unset TST; echo ${TST:-no}",0,"no","unset default"
-415,exit,"bash -c 'exit 200'; echo $?",200,"","exit 200"
-416,signals,"(trap 'echo TRAP' INT; kill -INT $$) || true",0,"TRAP","trap prints TRAP"
-417,process,"(sleep 0.01 & echo started) | cat",0,"started","bg echo"
-418,files,"printf 'abc' > f && dd if=f bs=1 count=2 2>/dev/null; rm f",0,"ab","dd read bytes"
-419,fd,"exec 19>t19; echo ok >&19; exec 19>&-; cat t19; rm t19",0,"ok","fd 19 usage"
-420,expansion,"VAR='one two'; set -- $VAR; echo $2",0,"two","positional second param"
-421,quotes,"echo \"a\\\"b\\\"c\"",0,"a\"b\"c","escaped quotes double"
-422,pipes,"echo 'a b c' | awk '{print $3}'",0,"c","awk third field"
-423,redirection,"printf 'x\n' > t; head -n1 t; rm t",0,"x","write and read"
-424,heredoc,"cat <<EOF\n$(echo hello)\nEOF",0,"hello","heredoc contains command output"
-425,builtins,"export X1=2; echo $X1",0,"2","export works"
-426,unset,"unset X1; echo ${X1:-no}",0,"no","unset default"
-427,exit,"bash -c 'exit 13'; echo $?",13,"","exit 13"
-428,signals,"(trap 'echo A' INT; kill -INT $$) || true",0,"A","trap prints A"
-429,process,"(sleep 0.02 & echo done) | cat",0,"done","background done print"
-430,files,"mkdir -p d && touch d/x && ls d | grep x && rm -r d",0,"x","touch and list"
-431,fd,"exec 20>t20; echo hi >&20; exec 20>&-; cat t20; rm t20",0,"hi","fd 20 usage"
-432,expansion,"A='x y z'; for v in $A; do echo $v; done | wc -l",0,"3","for with splitting"
-433,quotes,"echo \"a\\n b\"",0,"a\\n b","literal sequence, depends on shell"
-434,pipes,"printf '1\n2\n3\n' | awk '{print $1*2}'",0,"2\n4\n6","awk multiply"
-435,redirection,"echo ok > t && cat t && rm t",0,"ok","basic write/read"
-436,heredoc,"cat <<EOF\n$((5+5))\nEOF",0,"10","arith in heredoc"
-437,builtins,"export VARZ=Z; echo $VARZ",0,"Z","export variable basics"
-438,unset,"unset VARZ; echo ${VARZ:-no}",0,"no","unset behavior"
-439,exit,"bash -c 'exit 7'; echo $?",7,"","exit 7"
-440,signals,"(trap 'echo TR' INT; kill -INT $$) || true",0,"TR","trap printed"
-441,process,"(sleep 0.005 & echo ok) | cat",0,"ok","background microsleep"
-442,files,"printf 'one\n' > f && sed -n '1p' f; rm f",0,"one","sed first line"
-443,fd,"exec 21>t21; echo y >&21; exec 21>&-; cat t21; rm t21",0,"y","fd 21 usage"
-444,expansion,"X=5; echo $((X+1))",0,"6","arith expansion using variable"
-445,quotes,"echo \"a\\t b\"",0,"a\\t b","literal backslash t"
-446,pipes,"echo -e 'a\nb' | sed -n '1p'",0,"a","sed first line"
-447,redirection,"{ echo a; echo b; } > t; cat t; rm t",0,"a\nb","group redirect"
-448,heredoc,"cat <<EOF\nhello\nEOF",0,"hello","heredoc simple"
-449,builtins,"echo done && exit 0",0,"done","echo then exit"
-450,unset,"unset NOTHING; echo ${NOTHING:-ok}",0,"ok","unset default"
-451,wildcard,"touch x1 x2; echo x* | wc -w; rm x1 x2",0,"2","wildcard x*"
-452,wildcard,"mkdir -p dd && (cd dd; touch a b; echo ?? | wc -w); rm -r dd",0,"2","?? wildcard match two-char names"
-453,quotes,"echo 'single \"inside\"'",0,"single \"inside\"","single quotes with double inside"
-454,pipes,"printf 'a\nb\n' | grep -v b",0,"a","grep -v filters"
-455,redirection,"echo a > f; echo b >> f; awk 'END{print NR}' f; rm f",0,"2","nr lines count"
-456,heredoc,"cat <<EOF\n$(date +%Y)\nEOF",0,"$(date +%Y)","heredoc with command substitution (note: may expand)"
-457,builtins,"export T=1; echo $T",0,"1","export check repeat"
-458,unset,"unset T; echo ${T:-OK}",0,"OK","unset default repeat"
-459,exit,"bash -c 'exit 1'; echo $?",1,"","exit 1 repeat"
-460,signals,"(trap 'echo OK' INT; kill -INT $$) || true",0,"OK","trap INT repeat"
-461,process,"(sleep 0.02 & echo started) | cat",0,"started","bg start repeat"
-462,files,"mkdir -p tmpd && touch tmpd/aa && ls tmpd | grep aa && rm -r tmpd",0,"aa","dir test repeat"
-463,fd,"exec 22>t22; echo ok >&22; exec 22>&-; cat t22; rm t22",0,"ok","fd 22 usage"
-464,expansion,"X=' x y '; echo \"${X% }\"",0," x y","remove trailing space"
-465,quotes,"echo \"a\\$((1+1))\"",0,"a$((1+1))","escape arithmetic"
-466,pipes,"seq 1 5 | paste -sd' ' -",0,"1 2 3 4 5","paste space join"
-467,redirection,"echo x > t; head -c1 t; rm t",0,"x","head char"
-468,heredoc,"cat <<EOF\nline with $HOME\nEOF",0,"line with $HOME","heredoc expands HOME"
-469,builtins,"echo ok && exit 0",0,"ok","echo then exit repeat"
-470,unset,"unset NOTHING; echo ${NOTHING:-none}",0,"none","unset default repeat"
-471,wildcard,"touch fa fb; echo f? | wc -w; rm fa fb",0,"2","? wildcard"
-472,wildcard,"mkdir -p wd && (cd wd; touch aa bb; echo [ab]* | wc -w); rm -r wd",0,"2","char class wildcard"
-473,quotes,"echo 'a\\nb' ",0,"a\\nb","single quotes literal backslash n"
-474,pipes,"printf 'a\n' | tr 'a' 'b'",0,"b","tr transform"
-475,redirection,"echo hi > /tmp/minitest && cat /tmp/minitest && rm /tmp/minitest",0,"hi","tmp write/read"
-476,heredoc,"cat <<EOF\n'\nEOF",0,"'","heredoc with single quote"
-477,builtins,"export V='v'; echo $V",0,"v","export repeated"
-478,unset,"unset V; echo ${V:-nil}",0,"nil","unset default repeated"
-479,exit,"bash -c 'exit 14'; echo $?",14,"","exit 14 repeated"
-480,signals,"(trap 'echo G' INT; kill -INT $$) || true",0,"G","trap repeated"
-481,process,"(sleep 0.01 & echo bg) | cat",0,"bg","bg echo repeated"
-482,files,"mkdir -p nd && touch nd/x nd/y && ls nd | wc -w && rm -r nd",0,"2","dir list repeated"
-483,fd,"exec 23>t23; echo hey >&23; exec 23>&-; cat t23; rm t23",0,"hey","fd 23 usage"
-484,expansion,"A=' 1  2 '; echo $A | wc -w",0,"2","word splitting multiple spaces"
-485,quotes,"echo \"literal \\$HOME\"",0,"literal $HOME","escaped dollar inside double quotes"
-486,pipes,"printf '1\n2\n3' | awk '{print NR\":\"$0}'",0,"1:1\n2:2\n3:3","awk NR prefix"
-487,redirection,"{ echo a; echo b; } > tmp; wc -l tmp; rm tmp",0,"2","count lines group redir"
-488,heredoc,"cat <<EOF\nend\nEOF",0,"end","heredoc simple repeat"
-489,builtins,"echo ok; exit 0",0,"ok","echo and exit"
-490,unset,"unset NOPE; echo ${NOPE:-nothing}",0,"nothing","unset default repeat"
-491,wildcard,"touch zx zy; echo z* | wc -w; rm zx zy",0,"2","z* wildcard"
-492,wildcard,"mkdir -p wz && (cd wz; touch a1 a2; echo a* | wc -w); rm -r wz",0,"2","wildcard a* repeat"
-493,quotes,"echo \"a 'b' c\"",0,"a 'b' c","mixed quotes inside double"
-494,pipes,"seq 1 4 | paste -sd+ - | bc",0,"10","sum seq"
-495,redirection,"echo ok > tfile; sed -n '1p' tfile; rm tfile",0,"ok","tmp file test"
-496,heredoc,"cat <<EOF\n$(echo hi)\nEOF",0,"hi","heredoc with command output"
-497,builtins,"export TEST_NOW=1; echo $TEST_NOW",0,"1","export var check"
-498,unset,"unset TEST_NOW; echo ${TEST_NOW:-no}",0,"no","unset default"
-499,exit,"bash -c 'exit 6'; echo $?",6,"","exit 6"
-500,signals,"(trap 'echo X' INT; kill -INT $$) || true",0,"X","trap INT"
-501,process,"(sleep 0.01 & echo started) | cat",0,"started","bg started"
-502,files,"mkdir -p tdir && touch tdir/f1 && ls tdir | grep f1 && rm -r tdir",0,"f1","dir touch list"
-503,fd,"exec 24>t24; echo hi >&24; exec 24>&-; cat t24; rm t24",0,"hi","fd 24 usage"
-504,expansion,"A='a b'; echo \"$A\"",0,"a b","expansion with quotes"
-505,quotes,"echo \"complex \\\"string\\\" test\"",0,"complex \"string\" test","escaped quotes double"
-506,pipes,"printf '1\n2\n' | awk '{print $1*3}'",0,"3\n6","awk multiply"
-507,redirection,"echo a > tmp; echo b >> tmp; sed -n '1,2p' tmp; rm tmp",0,"a\nb","> and >> combined"
-508,heredoc,"cat <<EOF\n$(printf 'x')\nEOF",0,"x","heredoc with printf"
-509,builtins,"export A=1; echo $A",0,"1","export basic"
-510,unset,"unset A; echo ${A:-none}",0,"none","unset default"
-511,exit,"bash -c 'exit 9'; echo $?",9,"","exit 9"
-512,signals,"(trap 'echo S' INT; kill -INT $$) || true",0,"S","trap INT"
-513,process,"(sleep 0.01 & echo bg) | cat",0,"bg","bg echo"
-514,files,"printf 'line' > f && head -c4 f; rm f",0,"line","head chars"
-515,fd,"exec 25>t25; echo hi >&25; exec 25>&-; cat t25; rm t25",0,"hi","fd 25 usage"
-516,expansion,"VAR='1  2 3'; for v in $VAR; do echo $v; done | wc -l",0,"3","split multiple spaces"
-517,quotes,"echo \"a\\$HOME\"",0,"a$HOME","escaped dollar literal"
-518,pipes,"seq 1 3 | paste -sd+ - | bc",0,"6","sum seq repeat"
-519,redirection,"cat > tmp <<EOF\nA\nEOF; cat tmp; rm tmp",0,"A","heredoc file"
-520,heredoc,"cat <<'EOF'\n$HOME\nEOF",0,"$HOME","single quoted heredoc no expansion"
-521,builtins,"echo hi && exit 0",0,"hi","echo then exit repeat"
-522,unset,"unset XX; echo ${XX:-ok}",0,"ok","unset default repeat"
-523,wildcard,"touch ab ac ad; echo a* | wc -w; rm ab ac ad",0,"3","a* wildcard"
-524,wildcard,"mkdir -p wd && (cd wd; touch 1 2; echo [0-9]* | wc -w); rm -r wd",0,"2","numeric wildcard match"
-525,quotes,"echo 'single with $ and \" inside' ",0,"single with $ and \" inside","single quotes preserve $"
-526,pipes,"printf 'a\nb' | sed -n '2p'",0,"b","sed second line"
-527,redirection,"{ echo aa; echo bb; } > tmp; cat tmp; rm tmp",0,"aa\nbb","group redirect to tmp"
-528,heredoc,"cat <<EOF\n$(echo $(echo nested))\nEOF",0,"nested","nested substitution in heredoc"
-529,builtins,"export A=Z; echo $A",0,"Z","export check"
-530,unset,"unset A; echo ${A:-no}",0,"no","unset repeat"
-531,exit,"bash -c 'exit 4'; echo $?",4,"","exit 4"
-532,signals,"(trap 'echo OK' INT; kill -INT $$) || true",0,"OK","trap prints OK"
-533,process,"(sleep 0.02 & echo started) | cat",0,"started","bg start"
-534,files,"mkdir -p tmpf && touch tmpf/a tmpf/b && ls tmpf | wc -w && rm -r tmpf",0,"2","dir files count"
-535,fd,"exec 26>t26; echo ok >&26; exec 26>&-; cat t26; rm t26",0,"ok","fd 26 usage"
-536,expansion,"A=' x y '; echo \"${A# }\"",0,"x y ","parameter expansion trim"
-537,quotes,"echo \"a\\\"b\\\"\"",0,"a\"b\"","escaped quotes"
-538,pipes,"seq 1 3 | xargs -n1 echo",0,"1\n2\n3","xargs repeat"
-539,redirection,"echo one > t; echo two >> t; sed -n '1,2p' t; rm t",0,"one\ntwo","> and >> redir"
-540,heredoc,"cat <<EOF\nheredata\nEOF",0,"heredata","heredoc content"
-541,builtins,"echo ok && exit 0",0,"ok","echo exit check"
-542,unset,"unset XYZ; echo ${XYZ:-no}",0,"no","unset default repeated"
-543,wildcard,"touch z1 z2 z3; echo z* | wc -w; rm z1 z2 z3",0,"3","z* wildcard repeat"
-544,wildcard,"mkdir -p testw && (cd testw; touch a b; echo [ab]* | wc -w); rm -r testw",0,"2","char class wildcard repeat"
-545,quotes,"echo \"a 'b' c\"",0,"a 'b' c","quote mix repeat"
-546,pipes,"printf '1\n2\n3' | awk '{print $1}'",0,"1\n2\n3","awk prints"
-547,redirection,"{ echo a; echo b; } > tmp; wc -l tmp; rm tmp",0,"2","group and wc"
-548,heredoc,"cat <<EOF\nx\nEOF",0,"x","heredoc simple"
-549,builtins,"export T=1; echo $T",0,"1","export test repeat"
-550,unset,"unset T; echo ${T:-no}",0,"no","unset default repeat"
-551,exit,"bash -c 'exit 10'; echo $?",10,"","exit 10"
-552,signals,"(trap 'echo G' INT; kill -INT $$) || true",0,"G","trap int"
-553,process,"(sleep 0.01 & echo bg) | cat",0,"bg","bg echo"
-554,files,"mkdir -p t && touch t/a t/b && ls t | wc -w && rm -r t",0,"2","dir count repeat"
-555,fd,"exec 27>t27; echo ok >&27; exec 27>&-; cat t27; rm t27",0,"ok","fd 27 usage"
-556,expansion,"X='a b'; set -- $X; echo $#",0,"2","positional count"
-557,quotes,"echo \"a\\$((1+1))\"",0,"a$((1+1))","escape arithmetic repeat"
-558,pipes,"seq 1 5 | paste -sd+ - | bc",0,"15","sum seq repeat"
-559,redirection,"echo hi > t; cat t; rm t",0,"hi","basic write read repeat"
-560,heredoc,"cat <<EOF\nhello world\nEOF",0,"hello world","heredoc repeat"
-561,builtins,"echo go && exit 0",0,"go","echo then exit"
-562,unset,"unset ABC; echo ${ABC:-ok}",0,"ok","unset default"
-563,wildcard,"touch mm1 mm2; echo mm* | wc -w; rm mm1 mm2",0,"2","mm* wildcard"
-564,wildcard,"mkdir -p mx && (cd mx; touch a b; echo [ab] | wc -w); rm -r mx",0,"1","char class single char"
-565,quotes,"echo 'a\\'b' ",0,"a\\'b","single quote with backslash"
-566,pipes,"printf 'a\nb' | grep a",0,"a","grep via pipe"
-567,redirection,"echo test > tmp; sed -n '1p' tmp; rm tmp",0,"test","tmp read"
-568,heredoc,"cat <<EOF\n$(printf hi)\nEOF",0,"hi","heredoc with printf"
-569,builtins,"export K=1; echo $K",0,"1","export simple repeat"
-570,unset,"unset K; echo ${K:-no}",0,"no","unset default repeat"
-571,exit,"bash -c 'exit 12'; echo $?",12,"","exit 12"
-572,signals,"(trap 'echo X' INT; kill -INT $$) || true",0,"X","trap repeats"
-573,process,"(sleep 0.01 & echo started) | cat",0,"started","bg echo"
-574,files,"mkdir -p tmpx && touch tmpx/a tmpx/b && ls tmpx | wc -w && rm -r tmpx",0,"2","dir files"
-575,fd,"exec 28>t28; echo ok >&28; exec 28>&-; cat t28; rm t28",0,"ok","fd 28 usage"
-576,expansion,"A=' x y '; echo \"${A# }\"",0,"x y ","trim leading space repeat"
-577,quotes,"echo \"a\\\"b\\\"c\"",0,"a\"b\"c","escaped quotes repeat"
-578,pipes,"seq 1 4 | paste -sd+ - | bc",0,"10","sum repeat"
-579,redirection,"echo ok > t; cat t; rm t",0,"ok","tmp file read"
-580,heredoc,"cat <<EOF\nval\nEOF",0,"val","heredoc simple repeat"
-581,builtins,"echo ok && exit 0",0,"ok","echo exit"
-582,unset,"unset XXX; echo ${XXX:-ok}",0,"ok","unset default"
-583,wildcard,"touch xaa xab xac; echo xa* | wc -w; rm xaa xab xac",0,"3","xa* wildcard"
-584,wildcard,"mkdir -p wz && (cd wz; touch 01 02; echo [0-9]* | wc -w); rm -r wz",0,"2","numeric prefix wildcard"
-585,quotes,"echo \"complex 'mix' \\\"test\\\"\"",0,"complex 'mix' \"test\"","mixed quotes complex"
-586,pipes,"printf 'a\nb\nc' | awk '{print $1}'",0,"a\nb\nc","awk print"
-587,redirection,"{ echo one; echo two; } > tmp; wc -l tmp; rm tmp",0,"2","group redir count"
-588,heredoc,"cat <<EOF\nend\nEOF",0,"end","heredoc final"
-589,builtins,"export ZZZ=3; echo $ZZZ",0,"3","export check"
-590,unset,"unset ZZZ; echo ${ZZZ:-no}",0,"no","unset default"
-591,exit,"bash -c 'exit 3'; echo $?",3,"","exit 3"
-592,signals,"(trap 'echo SIG' INT; kill -INT $$) || true",0,"SIG","trap print"
-593,process,"(sleep 0.02 & echo bg) | cat",0,"bg","bg echo"
-594,files,"mkdir -p td && touch td/a td/b && ls td | wc -w && rm -r td",0,"2","dir list"
-595,fd,"exec 29>t29; echo ok >&29; exec 29>&-; cat t29; rm t29",0,"ok","fd 29 usage"
-596,expansion,"A='1 2 3'; set -- $A; echo $#; echo $3",0,"3\n3","positional count and third"
-597,quotes,"echo \"a\\$b\"",0,"a$b","escaped dollar repeat"
-598,pipes,"seq 1 5 | paste -sd+ - | bc",0,"15","sum repeat final"
-599,redirection,"echo final > t; cat t; rm t",0,"final","tmp final"
-600,heredoc,"cat <<EOF\nok\nEOF",0,"ok","heredoc final
-601,misc,"echo 'edgecase test 1'",0,"edgecase test 1","extra test 601"
-602,misc,"echo 'edgecase test 2'",0,"edgecase test 2","extra test 602"
-603,misc,"printf 'final line\n' | sed -n '1p'",0,"final line","extra test 603"
-604,misc,"echo 'last test 604'",0,"last test 604","extra test 604"
-605,misc,"echo 'test 605'",0,"test 605","extra test 605"
-606,misc,"echo 'test 606'",0,"test 606","extra test 606"
-607,misc,"echo 'test 607'",0,"test 607","extra test 607"
-608,misc,"echo 'test 608'",0,"test 608","extra test 608"
-609,misc,"echo 'test 609'",0,"test 609","extra test 609"
-610,misc,"echo 'test 610'",0,"test 610","extra test 610"
-611,misc,"echo 'test 611'",0,"test 611","extra test 611"
-612,misc,"echo 'test 612'",0,"test 612","extra test 612"
-613,misc,"echo 'test 613'",0,"test 613","extra test 613"
-614,misc,"echo 'test 614'",0,"test 614","extra test 614"
-615,misc,"echo 'test 615'",0,"test 615","extra test 615"
-616,misc,"echo 'test 616'",0,"test 616","extra test 616"
-617,misc,"echo 'test 617'",0,"test 617","extra test 617"
-618,misc,"echo 'test 618'",0,"test 618","extra test 618"
-619,misc,"echo 'test 619'",0,"test 619","extra test 619"
-620,misc,"echo 'test 620'",0,"test 620","extra test 620"
+id,category,cmd,expected_exit,expected_output,desc
+1,echo,"echo",0,,
+2,echo,"echo -n",0,,
+3,echo,"echo -nnnnn",0,,
+4,echo,"echo This is a test",0,"This is a test",
+5,echo,"echo -n This is a test",0,"This is a test",tester doesn't run
+6,echo,"echo -nnnn This is a test",0,"This is a test",tester doesn't run
+7,echo,"echo This is a test -nnnn",0,"This is a test -nnnn",
+8,echo,"echo $?",0,"prints exit code",
+9,echo,"""echo ola""",127,"echo ola: command not found",
+10,echo,"'echo ola'",127,"echo ola: command not found",
+11,echo,"echo '$USER'",0,"$USER",
+12,echo,"""echo ""$USER""""",0,"mariaoli",
+13,echo,"""echo ""'$USER'""""",0,"'mariaoli'",
+14,echo,"""echo '""$USER""'""",0,"""$USER""",
+15,echo,"echo ' ' $USER ' '",0,"  mariaoli ",
+16,echo,"echo ola           ola",0,"ola ola",
+17,echo,"""echo ""ola""""ola""""",0,"olaola",
+18,echo,"""echo ola""$USER""""",0,"olamariaoli",
+19,echo,"""echo ""''""$USER            ""oi            aaaa'""""",0," ''mariaoli oi            aaaa'",
+20,echo,"""echo ""''""$USER""oi            aaaa'""""",0," ''mariaolioi            aaaa'",
+21,echo,"""echo ""''""$USER""            oi            aaaa'""""",0," ''mariaoli            oi            aaaa'",
+22,echo,"echo 5\n4\n3\n | sort",0,"5\n4\n3\n",não precisa interpretar \
+23,echo,"""echo ""oi"" 'oi' ""'$USER'""""",0,"oi oi 'mariaoli'",
+24,echo,"""echo ""oi"" 'oi' ""'$NOENV'""""",0,"oi oi ''",
+25,cd,"cd -l",2,"bash: cd: -l: invalid option",We don't treat cd with options.
+26,cd,"cd -oi",2,"bash: cd: -o: invalid option",We don't treat cd with options.
+27,cd,"cd oi",1,"bash: cd: oi: No such file or directory",
+28,cd,"cd +oi",1,"bash: cd: +oi: No such file or directory",
+29,cd,"cd -",0,"prints pwd and changes to HOME",cd with only a relative or absolute path
+30,cd,"cd",0,"~$",Changes directory to HOME
+31,cd,"cd .",0,"stay in the same directory",
+32,cd,"cd.",127,"\nCommand 'cd.'\nnot found, did you mean:...",
+33,cd,"cd .\\nls",1,"bash: cd: too many arguments",
+34,cd,"cd ~",2,"bash: syntax error near unexpected token `~'",We don't treat `~'
+35,cd,"cd ../../../.. ; pwd",0,"/",
+36,cd,"cd /usr/bin ; pwd",0,"/usr/bin",
+37,cd,"cd invalid",1,"bash: cd: invalid: No such file or directory",
+38,cd,"cd $invalid",0,"~$",Changes directory to HOME
+39,cd,"cd (after unsetting HOME)",1,"bash: cd: HOME not set",
+40,cd,"cd $HOME (after unsetting HOME)",1,"bash: cd: HOME not set",
+41,cd,"cd HOME (after unsetting HOME)",1,"bash: cd: HOME: No such file or directory",
+42,cd,"""cd ""                   """"",1,"bash: cd:         : No such file or directory",
+43,export,"export USER=gambiarra (do after unset);\\necho $USER",0,"gambiarra",
+44,export,"export =",1,"bash: export: `=': not a valid identifier","o env imprime ""=""",
+45,export,"export VAR=$USER;\\necho $VAR",0,"mariaoli",
+46,export,"export novalue",0,,returns prompt, keeps ""novalue"" in export print, but doesn't add to env
+47,export,"export _",0,,already exists and returns prompt
+48,export,"export __",0,,adds ""__"" to export list
+49,export,"export=zzzzzz",0,,When an equal sign is present, bash assumes this is a direct assignment and if env variable exists, updates it, if it doesn't exist, creates it in local envp and returns prompt
+50,export,"export te$st=jabuticada",0,"add var te=jabuticaba",
+51,export,"export VAR1=caja 42 VAR2=caju",1,"export VAR1 and VAR2, returns bash: export: `42': not \\na valid identifier",
+52,export,"export",0,"prints ordered env variables with leading ""declare -x""",
+53,export,"""export var=""echo ola"", $var""",0,"ola",
+54,env,"env",0,"prints environment variables",
+55,env,"env PATH",127,"env: ‘PATH’: No such file or directory",
+56,env,"env (perform after unsetting all variables)",127,"bash: env: No such file or directory",
+57,exit,"exit",0,,exits with exit code 0
+58,exit,"exit 300",44,,exits with exit code 44
+59,exit,"exit -300",212,,exits with exit code 212
+60,exit,"exit +300",44,,exits with exit code 44
+61,exit,"exit 2 3",1,"bash: exit: too many arguments (and does not exit)",
+62,exit,"exit abc",2,"bash: exit: abc: numeric argument required + exits program",
+63,exit,"exit 99999999999999999999999",2,"bash: exit: 99999999999999999999999: numeric argument required + exits the program",
+64,exit,"exit 12abc 123",2,"bash: exit: 12abc: numeric argument required + exits program",
+65,exit,"exit 123  678",1,"exit: too many arguments (doesnt exit)",
+66,exit,"exit | exit",0,,doesn't exit
+67,exit,"exit 2> out",,"bashinho doesn't treat this",
+68,exit,"exit > out",0,,exits and creates out
+69,pwd,"pwd",0,,prints home, returns prompt
+70,pwd,"pwd args",0,,prints home, returns prompt
+71,unset,"unset",0,,returns prompt
+72,unset,"unset invalid",0,,returns prompt
+73,unset,"unset HOME",0,,unsets HOME env, returns prompt
+74,unset,"unset USER",0,,unsets USER env, returns prompt
+75,unset,"unset -n HOME",0,,does nothing, returns prompt
+76,unset,"unset oi HOME;\\nenv | grep HOME; echo $?",0,"unsets HOME env, returns prompt; grep returns prompt and exit code =0",
+77,unset,"unset bla bla OLDPWD",0,,unsets OLDPWD, returns prompt
+78,unset,"unset USER OLDPWD",0,,unsets USER and OLDPWD, returns prompt
+79,unset,"unset PATH;\\nls",127,"bash: ls: No such file or directory",
+80,unset,"unset weird*%chars",0,,does nothing, returns prompt
+81,unset,"unset ALL VARIABLES",,,,unsets all, returns prompt
+82,export local,"USER=sardinha",0,,changes env variable USER to sardinha, because direct assignment
+83,export local,"var=francesinha ;\\necho $var",0,"francesinha","prints from ""local env""",
+84,export local,"var=",0,,returns prompt (saves it somewhere?)
+85,export local,"var1=one var2=two; echo $var1 ;\\necho $var2",0,,exports variables to local env and echo the values
+86,export local,"var1=one var2=two ls",0,,executes ls, skips var1 and var2 assignments
+87,export local,"var1=one var2=two |\\nvar3=three",0,,creates local variables in child, doesn't change parent
+88,export local,"ls var=123",2,"ls: cannot access 'var=123': No such file or directory",
+89,export local,"Z=123;\\nexport Z; Z=432; export Z",,,,
+90,export local,"USER=nada ls",,,executa o comando ls e nao muda a var USER
+91,quotes & expander,"""echo ""Hello World""""",0,"Hello World",
+92,quotes & expander,"""echo ""'Hello World'""""",0," 'Hello World'",
+93,quotes & expander,"""echo Hello World""",127,"echo Hello World: command not found",
+94,quotes & expander,"echo Hello World'",127,"echo Hello World: command not found",
+95,quotes & expander,"""echo """,,"unclosed quotes, opens heredoc",
+96,quotes & expander,"""e""'c'''h""o"" Hello""",0,"Hello",
+97,quotes & expander,"export USER=graviola LAST='quote'",0,,updates user and creates LAST=quote
+98,quotes & expander,"echo '$HOME e $CASA e $USER'",0,"$HOME e $CASA e $USER",
+99,quotes & expander,"echo ''$HOME e $CASA e $USER''",0,"HOME e e USER",
+100,quotes & expander,"echo ''$HOME e '$CASA' \\ne $USER''",0,"HOME e $CASA e USER",
+101,quotes & expander,"""echo ""cama'""",,"unclosed quotes",
+102,quotes & expander,"""echo ""$HOME |\\necho '$USER'""""",,"unclosed quotes",
+103,quotes & expander,"""echo ""coxinha"" |\\nwc""",0,,executes wc on echo output
+104,quotes & expander,"""echo ""$HOME |\\necho '$USER'""""",0,"HOME | echo '(expands)USER'",
+105,quotes & expander,"""echo """"banana | echo graviola"""""" ,0,"graviola",
+106,quotes & expander,"""echo ""pitomba' |\\necho 'manga rosa""""",0,"pitomba' | echo 'manga rosa",
+107,quotes & expander,"""echo ""cat lol.c |\\ncat > lol.c""""",0,"cat lol.c | cat > lol.c",
+108,quotes & expander,"echo '$USER'",0,"$USER",
+109,quotes & expander,"echo 42' '42",0,"42 42",
+110,quotes & expander,"echo a'b'c'd'e'f'g'h'i'j'k'l'm'n'o'p'q'r's't'",0,"abcdefghijklmnopqrst",
+111,quotes & expander,"echo $USER'$USER'",0,"mariaoli$USER",
+112,quotes & expander,"""echo '$USER'""$USER""""",0,"$USERmariaoli",
+113,quotes & expander,"""echo ""'$USER'""""",0," 'mariaoli'",
+114,quotes & expander,"""echo '""$USER""'""",0,"""$USER""",
+115,quotes & expander,"""echo ""$U""S""ER""""",0,"SER",
+116,quotes & expander,"""echo ""$""USER""",0,"$USER",
+117,quotes & expander,"""echo $""USER""""",0,"USER",
+118,quotes & expander,"echo $invalid",0,,
+119,quotes & expander,"""echo $/,,",0,"$/,,",
+120,quotes & expander,"""echo ""'$''$'""""",0,"$''$",
+121,quotes & expander,"""echo hi $'' $""""",0,"hi",
+122,quotes & expander,"""cat """""",1,"cat: '': No such file or directory",
+123,quotes & expander,"cat ''",1,"cat: '': No such file or directory",
+124,quotes & expander,"""/bin/ls""",0,,executes ls
+125,quotes & expander,"""""ls"""""",0,,executes ls
+126,quotes & expander,"""'""ls""'""",127," 'ls': command not found",
+127,quotes & expander,""""""ls -l"""""" ,0,,executes ls -l
+128,quotes & expander,"""pw""""""d",0,"prints home directory",
+129,quotes & expander,"""ls' |\\n'wc""",127,"ls' | 'wc: command not found",
+130,quotes & expander,"""ls"" |\\n'wc""",,"unclosed quotes",
+131,quotes & expander,"ls '-l'",0,"funciona como ls -l (sem plicas)",
+132,quotes & expander,"ls ' -l'",2,"ls: cannot access ' -l': No such file or directory",
+133,quotes & expander,"ls '-l '",2,"ls: invalid option -- ' '",
+134,quotes & expander,"""ls |\\ngrep ""'oi | wc -l""",,"unclosed quotes",
+135,quotes & expander,"""ls | grep ""'""oi | wc -l""",0,"0",
+136,quotes & expander,"""ls |\\ngrep ""oi"" | wc -l""",0,"0",
+137,quotes & expander,"""export WWW=""     -aaa |  "";\\necho $WWW""",0,"saves variable WWW=""     -aaa |  """,
+138,quotes & expander,"""export ZZ""Y=aaa""bb""",0,"exports variable ZZY=""aaabb""",
+139,quotes & expander,"""unset EMA""IL""",0,,unsets EMAIL
+140,quotes & expander,"""cd """""",0,,returns prompt, doesn't change directory
+141,quotes & expander,"cd $invalid",0,,returns prompt, doesn't change directory
+142,quotes & expander,"""export test=""a        b         c"";\\necho $test""",0,"a b c",
+143,quotes & expander,"export $var=goiaba",1,"bash: export: `=goiaba': not a valid identifier",
+144,quotes & expander,"""export user=oi""$USER"";\\necho $user""",0,"oimariaoli",
+145,quotes & expander,"""export user=oi$""U""S""E""R; echo $user""",0,"oiUSER",
+146,quotes & expander,"""export test=""ls -l""; $test""",0,,runs ls -l
+147,quotes & expander,"export test; export test=hello; echo $test",0,"hello",
+148,quotes & expander,"""export test=""|     wc"";\\nls $test""",2,"ls: cannot access '|': No such file or directory\\nls: cannot access 'wc': No such file or directory",
+149,quotes & expander,"""export test=""|\\nwc""; ls ""$test    another""""",2,"ls: cannot access '|     wc    another': No such file or directory",
+150,quotes & expander,"""export test=""   abc"" ;\\necho kkk$test kkk""",0,"kkk abc kkk",
+151,quotes & expander,"""export TT=""echo $USER""; $TT""",0,"mariaoli",
+152,quotes & expander,"export USER+=oi; echo $USER",0,"mariaolioi",
+153,quotes & expander,""""""""""",127,"bash: : command not found",
+154,quotes & expander,"""cat """" """" """"",1,"cat: '': No such file or directory\\ncat: '': No such file or directory\\ncat: '': No such file or directory",
+155,quotes & expander,"cat $invalid $invalid",0,,opens cat
+156,expansion,"echo $USER",0,"mariaoli",
+157,expansion,"echo $",,"",
+158,expansion,"echo $$",0,"484740",Bashinho only expands exit code and env variables
+159,expansion,"export VAR=$USER",0,,creates VAR=username
+160,expansion,"""export test=""o hello"" ;\\necho $test""",0,"o hello",
+161,expansion,"""export var1=""ls -l"" var2=""-a -h"" ; $var1 $var2""",0,,executa ls -l -a -h
+162,expansion,"""export test=""a  bc        def"" ;\\necho $test""",0,"a bc def",
+163,expansion,"export us$er=blabla",0,"us=""blabla""",
+164,expansion,"ls > zzz$USER.txt",0,,creates file zzzmariaoli.txt and places ls contents in it
+165,expansion,"ls > zzz$USERzzz.txt",0,,creates file zzz.txt and places ls contents in it
+166,expansion,"""ls > zzz""$USER""zzz.txt""",0,,creates file zzzmariaolizzz.txt and places ls contents in it
+167,expansion,"""ls >> z""zz$USER""zzz.txt""",0,,creates file zzzmariaolizzz.txt and appends ls contents in it
+168,expansion,"ls >> z'zz$USER'zzz.txt",0,,creates file zzz$USERzzz.txt and appends ls contents in it
+169,expansion,"ls $jhrgsdhgbd",0,,Executes ls
+170,expansion,"ls $oi/bin",0,,executes ls in /bin
+171,expansion,"ls | $invalid | echo ok",0,"ok",
+172,expansion,""$""""",127,"bash: : command not found",
+173,expansion,"$'',127,"bash: : command not found",
+174,expansion,""$""USER""",127,"USER: command not found",
+175,expansion,"$'USER'",127,"USER: command not found",
+176,expansion,"$user",0,,returns prompt
+177,expansion,"$PWD",126,"bash: /home/mariaoli/git/minishell: Is a directory",
+178,expansion,"$$USER",127,"242419USER: command not found",Bashinho doesnt expand $$
+179,expansion,"$$$USER",127,"242419mariaoli: command not found",Bashinho doesnt expand $$
+180,exit codes,"cat invalid;\\necho $?",1,"cat: invalid: No such file or directory",
+181,exit codes,"enter ./minishell;\\nexit 300",44,"exit code 44",
+182,exit codes,"./not_executable_file",127,"bash: ./not_executable_file: No such file or directory",
+183,exit codes,"< not_existing_file",1,"bash: not_existing_file: No such file or directory",
+184,exit codes,"|\\necho 1",2,"bash: syntax error near unexpected token `|'",incosistent fds closing
+185,exit codes,"ls not_existing_file",2,"ls: cannot access 'not_existing_file': No such file or directory",
+186,exit codes,"cat + CTrl D ;\\necho $?",0,"exit code 0",
+187,exit codes,"cat + CTrl C ; echo $?",130,"exit code 130",
+188,exit codes,"cat + CTrl \ ;\\necho $?",131,"^\Quit (core dumped)",
+189,exit codes,"<<a <<b; 2x ctrl D; echo $?",0,"exit code 0",
+190,exit codes,"<<a <<b; ctrl C;\\necho $?",130,"exit code 130",
+191,exit codes,"cat < invalid | echo ok",0,"ok\\nbash: invalid: No such file or directory",
+192,exit codes,"ls |\\n$invalid",0,,returns prompt
+193,exit codes,"a= ; echo $?",0,,returns prompt
+194,exit codes,"exit 9223372036854775808",2,"bash: exit: 9223372036854775808: numeric argument required + exits",
+195,exit codes,"exit +9223372036854775807",255,"exit with code 255",
+196,exit codes,"exit 9223372036854775807",255,"exit with code 255",
+197,exit codes,"exit -9223372036854775807",1,"exit with code 1",
+198,exit codes,"exit -9223372036854775808",0,"exit with code 0",
+199,exit codes,"exit -9223372036854775809",2,"bash: exit: -9223372036854775809: numeric argument required + exits",
+200,exit codes,"exit 99999999999999999999999",2,"bash: exit: 99999999999999999999999999: numeric argument required + exits",
+201,exit codes,"exit 999999999999999999",255,"exit with code 255",
+202,exit codes,"exit 999999999999999998",254,"exit with code 254",
+203,exit codes,"""exit ""  42 """" ,42,"exit code 42",
+204,pipes,"""ls"" | 'wc'",0,,execute ls and wc
+205,pipes,"unset USER | env | grep USER",0,"USER=mariaoli",doesn't unset USER in parent
+206,pipes,"unset OLDPWD | ls",0,,performs ls, doesn't unset variable
+207,pipes,"echo USER | export USER=farinha",0,,echo doesn't perform, USER is not changed, returns prompt
+208,pipes,"echo Hello World | | grep e",2,"bash: syntax error near unexpected token `|'",
+209,pipes,"cat /dev/urandom | head -c 100",0,"returns 100 random characters",
+210,pipes,"| ls",2,"bash: syntax error near unexpected token `|'",
+211,pipes,"|",2,"bash: syntax error near unexpected token `|'",
+212,pipes,"ls |",,"waits",
+213,pipes,"ls | wc",0,,execute ls and wc
+214,pipes,"ls |\\n| wc",2,"bash: syntax error near unexpected token `|'",
+215,pipes,"cd |\\nls",0,,doesn't change directory, executes ls in current dir
+216,pipes,"echo oi | ls",0,,executes ls
+217,pipes,"echo oi | cat",0,"oi",
+218,pipes,"ls | echo oi",0,"oi",
+219,pipes,"ls |\\npwd",0,"/home/mariaoli",
+220,pipes,"pwd | cd",0,,nothing happens
+221,pipes,"cd |\\npwd",0,"/home/mariaoli/git/minishell",doesn't change current directory
+222,pipes,"ls | $invalid | echo ok",0,"ok",
+223,pipes,"sort |\\nls",0,"printa ls (e deixa aberto o heredoc, mas nao faz sort)",
+224,pipes,"cat |\\nls",0,,(BONUS)bonus  libft  Makefile        mandatory  minishell  minishell_bonus  README.md\\n\\ncat: write error: Broken pipe
+225,pipes,"cat |\\ncat | cat | ls",0,,(BONUS)bonus  libft  Makefile        mandatory  minishell  minishell_bonus  README.md\\n\\ncat: write error: Broken pipe\\n\\ncat: write error: Broken pipe\\n\\ncat: write error: Broken pipe
+226,pipes,"sort |\\nsort | sort | ls",,,,"quando eu dou enter e depois ctrl+d, a mensagem eh:\\nsort: fflush failed: 'standard output': Broken pipe\\nsort: write error"
+227,pipes,"""""" | """" | """""",127,"bash: : command not found\\nbash: : command not found\\nbash: : command not found",
+228,pipes,"$invalid |\\n$invalid | $invalid",0,,returns prompt
+229,redirects,"echo hello > outfile",0,,Create ""outfile"" and write hello inside
+230,redirects,"""echo hello > ""              """"",0,,Create ""      "" and write hello inside
+231,redirects,"""ls "">"" ola""",2,"ls: cannot access '>': No such file or directory;\\nls: cannot access 'ola': No such file or directory",
+232,redirects,"> ''",1,"bash: : No such file or directory",aqui no meu bash diz: bash: : No such file or directory
+233,redirects,"< ''",1,"bash: : No such file or directory",o bashinho deu exit kkk.
+234,redirects,">> ''",1,"bash: : No such file or directory",
+235,redirects,"< inacessible_file |\\ncat -e > output",0,"bash: outfile: Permission denied and Creates empty output file",
+236,redirects,"<",2,"bash: syntax error near unexpected token `newline'",
+237,redirects,">",2,"bash: syntax error near unexpected token `newline'",
+238,redirects,"> outfile",0,,creates empty outfile, and returns prompt
+239,redirects,"< existingfile",0,,returns prompt
+240,redirects,"< Makefile > testfile2",0,,creates empty output file ""testfile2""
+241,redirects,"< nonexisting_file",1,"nonexisting_file: No such file or directory",
+242,redirects,"ls >out>>out2>out3",0,,creates 3 files, the ls is only saved in out3
+243,redirects,"ls |\\ngrep > out oi | wc -l",0,"0",
+244,redirects,"cat < Makefile >> out",0,,appends Makefile content to out
+245,redirects,"cat < new_file >> new_file",1,"bash: new_file: No such file or directory",
+246,redirects,"<infile grep i >grep |\\n<grep wc",1,"bash: out3: No such file or directory\\nbash: grep: No such file or directory",
+247,redirects,"> $invalid",1,"bash: $invalid: ambiguous redirect",
+248,redirects,"< $invalid",1,"bash: $invalid: ambiguous redirect",
+249,redirects,">> $invalid",1,"bash: $invalid: ambiguous redirect",
+250,redirects,"sort > text",0,,creates a file named text, opens a heredoc and executes command after ctrl+d and saves it to text
+251,redirects,"cat < text",1,"bash: text: No such file or directory",
+252,redirects,"ls >|\\nout",0,,writes ls in a file named out
+253,redirects,"ls >|",2,"bash: syntax error near unexpected token `newline'",
+254,redirects,"cat -e < file",1,"bash: file: No such file or directory",
+255,redirects,"< file cat -e",1,"igual ao de cima",
+256,redirects,"cat < file -e",1,"igual ao de cima",
+257,redirects,"<Makefile cat>outfile -e |\\n<< EOF sort | >> file2 wc",0,"Writes Makefile contents with '$' in every \n, opens heredoc for...",
+258,redirects,"echo < Makefile < missing < Makefile",1,"bash: missing: No such file or directory",
+259,redirects,">$invalid ls",1,"bash: $invalid: ambiguous redirect",
+260,heredocs,"<<",2,"bash: syntax error near unexpected token `newline'",
+261,heredocs,">>",2,"bash: syntax error near unexpected token `newline'",
+262,heredocs,"cat << end |\\nwc -l",0,"show and count lines of heredoc file",tester doesn't run
+263,heredocs,"cat << end |\\ngrep e",0,"returns heredoc lines that contain e",tester doesn't run
+264,heredocs,"<< end |\\ngrep e",0,,returns prompt, tester doesn't run
+265,heredocs,"<< EOF cat",0,,expands any variable inside it, tester doesn't run
+266,heredocs,"""<< ""EOF"" cat""",0,,Does not expand $ENV, tester doesn't run
+267,heredocs,"<< 'EOF' cat",0,,Does not expand $ENV, tester doesn't run
