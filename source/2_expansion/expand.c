@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expand.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/23 14:50:35 by matheusless       #+#    #+#             */
+/*   Updated: 2025/10/23 16:02:16 by matheusless      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/minishell.h"
 
-char	*get_env_value(char *key, t_env *env_list)
+char	*get_env_value(t_env *env_list, const char *key)
 {
 	while(env_list)
 	{
@@ -17,7 +29,7 @@ char	*expand_env_variables(char *input, t_env *env_list, int last_exit)
 	int	j;
 	char	*buffer;
 	char	*result;
-	char	*temp;	
+	char	*temp;
 	int	is_single_quote = 0;
 	int	is_double_quote = 0;
 
@@ -37,7 +49,7 @@ char	*expand_env_variables(char *input, t_env *env_list, int last_exit)
 				temp = ft_strjoin(result, exit_str);
 				free(result);
 				free(exit_str);
-				result = temp;	
+				result = temp;
 				i++;
 			}
 			else
@@ -46,7 +58,7 @@ char	*expand_env_variables(char *input, t_env *env_list, int last_exit)
 				while (ft_isalnum(buffer[j]) || buffer[j] == '_')
 					j++;
 				char	*var_name = ft_substr(buffer, i + 1, j - (i + 1));
-				char	*value = get_env_value(var_name, env_list);
+				char	*value = get_env_value(env_list, var_name);
 				free(var_name);
 				if(!value)
 					value = "";

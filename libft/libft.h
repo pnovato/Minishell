@@ -6,7 +6,7 @@
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 11:41:41 by pnovato-          #+#    #+#             */
-/*   Updated: 2025/09/23 16:16:21 by matheusless      ###   ########.fr       */
+/*   Updated: 2025/10/23 15:12:19 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void	ft_bzero(void *s, size_t n);
 void	ft_putstr_fd(char *s, int fd);
 void	ft_putendl_fd(char *s, int fd);
 void	ft_putnbr_fd(int n, int fd);
+void	free_split(char **split);
 void	ft_lstadd_front(t_list **lst, t_list *new);
 void	ft_lstadd_back(t_list **lst, t_list *new);
 void	ft_lstdelone(t_list *lst, void (*del)(void*));

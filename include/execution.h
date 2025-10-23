@@ -1,34 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   builtins.h                                         :+:      :+:    :+:   */
+/*   execution.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 12:34:06 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/23 14:44:27 by matheusless      ###   ########.fr       */
+/*   Created: 2025/10/23 12:27:53 by matheusless       #+#    #+#             */
+/*   Updated: 2025/10/23 14:39:54 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BUILTINS_H
-# define BUILTINS_H
+#ifndef EXECUTION_H
+# define EXECUTION_H
 
 # include "minishell.h"
-# include "execution.h"
+# include "builtins.h"
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <unistd.h>
 
-void	handle_the_inputs(char *input, t_env *env_list, int *last_exit);
-void	builtin_echo(char **args);
-void	builtin_pwd(void);
-void	builtin_cd(char **args, t_env *env_list);
-void	builtin_exit(char **args);
-void	builtin_env(t_env *env);
-void	builtin_export(char **args, t_env *env);
-void	builtin_unset(char **args, t_env *env);
-void	update_env_value(t_env **env, const char *key, const char *value);
-void	remove_env_var(t_env **env, const char *key);
+void	execute_command(char **args, t_env *env_list, int *last_exit);
+char	*join_key_value(const char *key, const char *value);
+char	*resolve_path(const char *cmd, t_env *env_list);
+char	*join_path(const char *dir, const char *cmd);
+char	**env_to_array(t_env *env);
+int		is_builtin(const char *cmd);
 
 #endif

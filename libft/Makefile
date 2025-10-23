@@ -6,7 +6,7 @@
 #    By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/30 14:57:03 by pnovato-          #+#    #+#              #
-#    Updated: 2025/09/23 16:28:01 by matheusless      ###   ########.fr        #
+#    Updated: 2025/10/23 15:12:55 by matheusless      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,6 +44,7 @@ ft_substr.c \
 ft_strjoin.c \
 ft_strtrim.c \
 ft_split.c \
+free_split.c \
 ft_itoa.c \
 ft_strmapi.c \
 ft_striteri.c \

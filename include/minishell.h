@@ -6,7 +6,7 @@
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 16:03:09 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/10 16:03:44 by matheusless      ###   ########.fr       */
+/*   Updated: 2025/10/23 14:55:58 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ typedef struct s_env
 // main.c
 int		main(int ac, char **av, char **envp);
 void	print_env_list(t_env *env);
-void	minishell_loop(t_env *env_list, int last_exit);
+void	minishell_loop(t_env *env_list, int *last_exit);
 
 // source/list_utils
 t_env	*create_env_node(char *key, char *value);
@@ -70,11 +70,12 @@ t_env	*create_env_node(char *key, char *value);
 t_env	*envp_to_list(char **envp);
 
 //source/2_expansion
-char	*get_env_value(char *key, t_env *env_list);
+char	*get_env_value(t_env *env_list, const char *key);
 char	*expand_env_variables(char *input, t_env *env_list, int last_exit);
+int		env_size(t_env *env);
 
 //source/3_built_ins
-void	handle_the_inputs(char *input, t_env *env_list);
+void handle_the_inputs(char *input, t_env *env_list, int *last_exit);
 
 //source/free
 void	free_env_list(t_env *env);

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 14:20:17 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/10 16:14:20 by matheusless      ###   ########.fr       */
+/*   Created: 2025/10/23 12:25:00 by matheusless       #+#    #+#             */
+/*   Updated: 2025/10/23 14:43:32 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static void	free_args(char **args)
 	free(args);
 }
 
-void	handle_the_inputs(char *input, t_env *env_list)
+void	handle_the_inputs(char *input, t_env *env_list, int *last_exit)
 {
 	char	**args;
 
@@ -55,6 +55,9 @@ void	handle_the_inputs(char *input, t_env *env_list)
 		free_args(args);
 		return ;
 	}
-	execute_builtin(args, env_list);
+	if (is_builtin(args[0]))
+		execute_builtin(args, env_list);
+	else
+		execute_command(args, env_list, last_exit);
 	free_args(args);
 }
