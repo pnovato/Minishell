@@ -6,6 +6,7 @@ void	minishell_loop(t_env *env_list, int last_exit)
 {
 	char	*expanded;
 	char	*input;
+	t_token	*token;
 
 	while (1)
 	{
@@ -15,13 +16,14 @@ void	minishell_loop(t_env *env_list, int last_exit)
 			printf("exit\n");
 			break ;
 		}
-		if (*input)
+		if (input && *input)
 			add_history(input);
 		if (ft_strcmp(input, "exit") == 0)
 		{
 			free(input);
 			break ;
 		}
+		token->value = split_line_to_token(input);
 		handle_the_inputs(input, env_list);
 		split_line_to_token();
 		expanded = expand_env_variables(input, env_list, last_exit);		
@@ -39,11 +41,11 @@ void	print_env_list(t_env *env)
 	}
 }
 
-void	print_token_list(t_list *token)
+void	print_token_list(t_token *token)
 {
 	while (token)
 	{
-		printf("%s\n", (char *)token->content);
+		printf("%s\n", token->value);
 			token = token->next;
 	}
 }
