@@ -1,54 +1,47 @@
 #include "../../include/minishell.h"
 
-void	ft_lstadd_back_token(t_list **token, char *str, int start, int len)
+t_token	*new_token(char *value, t_node_type *type)
 {
-	t_list	*new;
-	
-	new = ft_lstnew(ft_substr(str, start, len));
-	if (!new)
-		return;
-	ft_lstadd_back(token, new);
-} 
-
-void	before_after_op(char *line, t_list **token, int *i, int *start)
-{
-	int	len;
-	
-	len = (line[*i+1] == line[*i]) ? 2 : 1;
-	ft_lstadd_back_token(token, line, *i, len);
-	*i += len;
-	while (line[*i] == ' ')
-		(*i)++;
-	*start = *i;
+	t_token *token = malloc(sizeof(t_token));
+	if (!token)
+		return (NULL);
+	token->value = ft_strdup(value); //aloquei memoria, depois preciso dar free nela. talvez um free_token_list;
+	token->type = type;
+	token->next = NULL;
+	return (token);
 }
 
-char	**split_line_to_token(char *line)
+void	token_add_back(t_token **lst, t_token **new)
 {
-	t_list	*token;
+	t_token *node;
+
+	if (!lst || !new)
+		return;
+	if (*lst = NULL)
+	{
+		lst = new;
+		return;
+	}
+	node = new;
+	while (node->next != NULL)
+		node = node->next;
+	node->next = new;
+}
+
+t_token	*split_line_to_token(char *line)
+{
 	int	i;
 	int	start;
-	bool	is_single;
-	bool	is_double;
+	t_token	*token;
 	
 	i = 0;
 	start = 0;
 	token = NULL;
-	is_single = false;
-	is_double = false;
 	while (line[i])
 	{
-		check_quotes(line[i], &is_single, &is_double);
-		if (!is_single && !is_double && is_operator(line, i))
-		{	
-			if (i > start)
-				ft_lstadd_back_token(&token, line, start, i - start);
-			before_after_op(line, &token, &i, &start);
-			continue;
-		}
-		i++;		
+		while (line[i] && line[i] = ' ')
+			i++;
+		if (i > start)
+			new_token()
 	}
-	if (i > start)
-		ft_lstadd_back_token(&token, line, start, i - start);
-	print_token_list(token);
-	return (NULL/*lst_of_tokens(token)*/);
 }

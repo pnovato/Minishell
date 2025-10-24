@@ -31,6 +31,15 @@ typedef struct s_node
 
 }	t_node;
 
+typedef struct s_token
+{
+	t_node_type	type;
+	char		*value;
+	struct s_token	*next;
+
+}	t_token;
+
+
 //essa estrutura é necessária pq vamos ter que ter o nosso proprio ambiente de execução.
 //No subject tem umas built-ins:"unset,export" que se usarmos na envp[] normal, ela não executa
 //pq não podemos modificar diretamente esse array (char **envp), quando precisamos modificar
@@ -63,12 +72,21 @@ char    *expand_env_variables(char *input, t_env *env_list, int last_exit);
 void	handle_the_inputs(char *input, t_env *env_list);
 
 //source/4_tokenization
+<<<<<<< Updated upstream
 void	ft_lstadd_back_token(t_list **token, char *str, int start, int len);
+=======
+>>>>>>> Stashed changes
 void	before_after_op(char *line, t_list **token, int *i, int *start);
 char	**split_line_to_token(char *line);
 
 //source/_checker
 bool	check_quotes(char str, bool *is_single, bool *is_double);
 bool	is_operator(char *str, int i);
+<<<<<<< Updated upstream
+=======
+
+//source/free
+void	free_env_list(t_env *env);
+>>>>>>> Stashed changes
 
 #endif
