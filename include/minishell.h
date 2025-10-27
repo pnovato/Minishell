@@ -13,7 +13,10 @@ typedef enum e_node_type
 {
         NODE_COMMAND,
         NODE_PIPE,
-        NODE_REDIRECT,
+        NODE_RREDIRECT,
+	NODE_LREDIRECT,
+	NODE_RSHIFT,
+	NODE_LSHIFT,
 	NODE_FILENAME,
         NODE_OR,
         NODE_AND,
@@ -72,21 +75,15 @@ char    *expand_env_variables(char *input, t_env *env_list, int last_exit);
 void	handle_the_inputs(char *input, t_env *env_list);
 
 //source/4_tokenization
-<<<<<<< Updated upstream
 void	ft_lstadd_back_token(t_list **token, char *str, int start, int len);
-=======
->>>>>>> Stashed changes
 void	before_after_op(char *line, t_list **token, int *i, int *start);
 char	**split_line_to_token(char *line);
 
 //source/_checker
 bool	check_quotes(char str, bool *is_single, bool *is_double);
 bool	is_operator(char *str, int i);
-<<<<<<< Updated upstream
-=======
 
 //source/free
 void	free_env_list(t_env *env);
->>>>>>> Stashed changes
 
 #endif

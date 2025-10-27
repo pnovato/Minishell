@@ -1,6 +1,6 @@
 #include "../../include/minishell.h"
 
-t_token	*new_token(char *value, t_node_type *type)
+t_token	*new_token(char *value, t_node_type type)
 {
 	t_token *token = malloc(sizeof(t_token));
 	if (!token)
@@ -17,31 +17,49 @@ void	token_add_back(t_token **lst, t_token **new)
 
 	if (!lst || !new)
 		return;
-	if (*lst = NULL)
+	if (*lst == NULL)
 	{
-		lst = new;
+		*lst = *new;
 		return;
 	}
-	node = new;
+	node = *lst;
 	while (node->next != NULL)
 		node = node->next;
 	node->next = new;
 }
+
+void	init_token_slice(t_token **lst, char *line, int start, int end)
+{
+	char		*value;
+	t_node_type	type;
+	t_token		*new;
+	
+	value = ft_substr(line, start, end - start);
+	type = check_token_type(value);
+	new = new_token(value, type);
+	token_add_back(lst, new);
+	free(value);
+}
+
 
 t_token	*split_line_to_token(char *line)
 {
 	int	i;
 	int	start;
 	t_token	*token;
-	
+
 	i = 0;
 	start = 0;
 	token = NULL;
 	while (line[i])
 	{
-		while (line[i] && line[i] = ' ')
+		while (line[i] && line[i] == ' ')
 			i++;
 		if (i > start)
-			new_token()
+			init_token_slice(&token, line, start, i);
+		while (line[i] == ' ')
+			i++;
+		start = i;
 	}
+	return (token);
 }
