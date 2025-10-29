@@ -21,4 +21,7 @@ t_node_type check_token_type(char *str)
 		return (NODE_AND);
 	if (ft_strncmp(str, "||", 3) == 0)
 		return (NODE_OR);
+	if (ft_strcmp(str, "(") == 0 || ft_strcmp(str, ")") == 0)
+		return (NODE_GROUP);
+	return (NODE_COMMAND);
 }

@@ -42,6 +42,11 @@ typedef struct s_token
 
 }	t_token;
 
+typedef struct s_quote
+{
+	bool	is_single;
+	bool	is_double;
+}	t_quote;
 
 //essa estrutura é necessária pq vamos ter que ter o nosso proprio ambiente de execução.
 //No subject tem umas built-ins:"unset,export" que se usarmos na envp[] normal, ela não executa

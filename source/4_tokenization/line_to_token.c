@@ -47,19 +47,23 @@ t_token	*split_line_to_token(char *line)
 	int	i;
 	int	start;
 	t_token	*token;
+	t_quote	q;
 
 	i = 0;
 	start = 0;
 	token = NULL;
+	q.is_single = false;
+	q.is_double = false;
 	while (line[i])
 	{
-		while (line[i] && line[i] == ' ')
-			i++;
-		if (i > start)
-			init_token_slice(&token, line, start, i);
-		while (line[i] == ' ')
-			i++;
-		start = i;
+		if (check_parenthesis_token(line, &i, &start, &token, &q))
+			continue;
+		if (check_space_token(line, &i, &start, &token, &q))
+			continue;
+		i++;
 	}
-	return (token);
-}
+	if (i > start)
+		init_token_slice(&token, line, start, i);
+		return (token);
+	}
+
