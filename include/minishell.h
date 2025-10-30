@@ -68,6 +68,7 @@ void    minishell_loop(t_env *env_list, int last_exit);
 // source/list_utils
 t_env	*create_env_node(char *key, char *value);
 void	free_env_list(t_env *env);
+void    free_token_list(t_token *token);
 
 // source/1_pre_expansion
 t_env   *envp_to_list(char **envp);
@@ -92,7 +93,5 @@ bool	check_space_token(char *lin, int *i, int *s, t_token **l, t_quote *q);
 bool	is_operator(char *str, int i);
 t_node_type check_token_type(char *str);
 
-//source/free
-void	free_env_list(t_env *env);
 
 #endif
