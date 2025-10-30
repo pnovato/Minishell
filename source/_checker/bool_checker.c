@@ -1,6 +1,6 @@
 #include "../../include/minishell.h"
 
-bool	check_quotes(char str, bool *is_single, bool *is_double)
+void	check_quotes(char str, bool *is_single, bool *is_double)
 {
 	if (str == '\'' && !(*is_double))
 		*is_single = !(*is_single);
@@ -9,26 +9,26 @@ bool	check_quotes(char str, bool *is_single, bool *is_double)
 }
 
 
-bool	check_parenthesis_token(char *lin, int *i, int *s, t_token *l, t_quote *q)
+bool	check_parenthesis_token(char *lin, int *i, int *s, t_token **l, t_quote *q)
 {
 	check_quotes(lin[*i], &q->is_single, &q->is_double);
 	
 	if (!(q->is_single) && !(q->is_double)
 		&& (lin[*i] == '(' || lin[*i] == ')'))
 	{
-		if (*i > *start)
+		if (*i > *s)
 			init_token_slice(l, lin, *s, *i);
 		init_token_slice(l, lin, *i, *i + 1);
 		(*i)++;
 		while (lin[*i] == ' ')
 			(*i)++;
-		*start = *i;
+		*s = *i;
 		return (true);
 	}
 	return (false);
 }
 
-bool	check_space_token(char *lin, int *i, int *s, t_token *l, t_quote *q)
+bool	check_space_token(char *lin, int *i, int *s, t_token **l, t_quote *q)
 {
 	if (!(q->is_single) && !(q->is_double) && lin[*i] == ' ')
 	{

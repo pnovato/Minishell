@@ -1,4 +1,4 @@
-#include "../../include/minishell.h"
+#include "../../include/minishel.h"
 
 t_node_type check_token_type(char *str)
 {

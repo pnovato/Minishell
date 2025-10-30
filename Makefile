@@ -8,8 +8,6 @@ LIBFT = $(LIBFT_DIR)/libft.a
 SRC = main.c \
 1_pre_expansion/env_to_list.c \
 2_expansion/expand.c \
-list_utils/new_node.c \
-list_utils/node_utils.c \
 3_built_ins/builtin_cd.c \
 3_built_ins/builtin_pwd.c \
 3_built_ins/builtin_echo.c \
@@ -22,8 +20,8 @@ list_utils/node_utils.c \
 3_built_ins/handle_the_inputs.c \
 4_tokenization/line_to_token.c \
 _checker/bool_checker.c \
-_checker/bool_checker.c \
-free/free_list.c
+_checker/node_type_checker.c \
+list_utils/node_utils.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 

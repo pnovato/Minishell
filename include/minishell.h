@@ -49,7 +49,7 @@ typedef struct s_quote
 }	t_quote;
 
 //essa estrutura é necessária pq vamos ter que ter o nosso proprio ambiente de execução.
-//No subject tem umas built-ins:"unset,export" que se usarmos na envp[] normal, ela não executa
+//No subject tem umas built-ins:\"unset,export\" que se usarmos na envp[] normal, ela não executa
 //pq não podemos modificar diretamente esse array (char **envp), quando precisamos modificar
 //o ambiente na nossa minishell.
 typedef struct s_env
@@ -62,7 +62,7 @@ typedef struct s_env
 // main.c
 int main(int ac, char **av, char **envp);
 void    print_env_list(t_env *env);
-void	print_token_list(t_list *token);
+void	print_token_list(t_token *token);
 void    minishell_loop(t_env *env_list, int last_exit);
 
 // source/list_utils
@@ -80,13 +80,17 @@ char    *expand_env_variables(char *input, t_env *env_list, int last_exit);
 void	handle_the_inputs(char *input, t_env *env_list);
 
 //source/4_tokenization
-void	ft_lstadd_back_token(t_list **token, char *str, int start, int len);
-void	before_after_op(char *line, t_list **token, int *i, int *start);
-char	**split_line_to_token(char *line);
+t_token *split_line_to_token(char *line);
+void    init_token_slice(t_token **lst, char *line, int start, int end);
+void    token_add_back(t_token **lst, t_token *nw);
+t_token *new_token(char *value, t_node_type type);
 
 //source/_checker
-bool	check_quotes(char str, bool *is_single, bool *is_double);
+void	check_quotes(char str, bool *is_single, bool *is_double);
+bool	check_parenthesis_token(char *lin, int *i, int *s, t_token **l, t_quote *q);
+bool	check_space_token(char *lin, int *i, int *s, t_token **l, t_quote *q);
 bool	is_operator(char *str, int i);
+t_node_type check_token_type(char *str);
 
 //source/free
 void	free_env_list(t_env *env);

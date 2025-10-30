@@ -11,21 +11,21 @@ t_token	*new_token(char *value, t_node_type type)
 	return (token);
 }
 
-void	token_add_back(t_token **lst, t_token **new)
+void	token_add_back(t_token **lst, t_token *nw)
 {
 	t_token *node;
 
-	if (!lst || !new)
+	if (!lst || !nw)
 		return;
 	if (*lst == NULL)
 	{
-		*lst = *new;
+		*lst = nw;
 		return;
 	}
 	node = *lst;
 	while (node->next != NULL)
 		node = node->next;
-	node->next = new;
+	node->next = nw;
 }
 
 void	init_token_slice(t_token **lst, char *line, int start, int end)
@@ -37,8 +37,9 @@ void	init_token_slice(t_token **lst, char *line, int start, int end)
 	value = ft_substr(line, start, end - start);
 	type = check_token_type(value);
 	new = new_token(value, type);
-	token_add_back(lst, new);
 	free(value);
+	if (new)
+		token_add_back(lst, new);
 }
 
 
@@ -56,6 +57,7 @@ t_token	*split_line_to_token(char *line)
 	q.is_double = false;
 	while (line[i])
 	{
+		check_quotes(line[i], &q.is_single, &q.is_double);
 		if (check_parenthesis_token(line, &i, &start, &token, &q))
 			continue;
 		if (check_space_token(line, &i, &start, &token, &q))
@@ -64,6 +66,5 @@ t_token	*split_line_to_token(char *line)
 	}
 	if (i > start)
 		init_token_slice(&token, line, start, i);
-		return (token);
-	}
-
+	return (token);
+}
