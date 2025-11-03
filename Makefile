@@ -28,8 +28,7 @@ list_utils/new_node.c \
 5_execution/join_key_value.c \
 5_execution/resolve_path.c \
 _checker/bool_checker.c \
-_checker/node_type_checker.c \
-free/free_list.c
+_checker/node_type_checker.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 

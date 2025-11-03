@@ -15,3 +15,29 @@ t_env	*create_env_node(char *key, char *value)
 	new->next = NULL;
 	return (new);
 }
+
+void	free_env_list(t_env *env)
+{
+	t_env	*temp;
+
+	while (env)
+	{
+		temp = env->next;
+		free(env->key);
+		free(env->value);
+		free(env);
+		env = temp;	
+	}
+}
+
+void	free_token_list(t_token *token)
+{
+	t_token	*temp;
+	while (token)
+	{
+		temp = token->next;
+		free(token->value);
+		free(token);
+		token = temp;
+	}
+}
