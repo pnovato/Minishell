@@ -82,6 +82,7 @@ t_env   *envp_to_list(char **envp);
 char    *get_env_value(const char *key, t_env *env_list);
 char    *expand_env_variables(char *input, t_env *env_list, int last_exit);
 int		env_size(t_env *env);
+void    expand_token_list(t_token *token_list, t_env *env_list, int last_exit);
 
 //source/3_built_ins
 
@@ -90,6 +91,7 @@ t_token *split_line_to_token(char *line);
 void    init_token_slice(t_token **lst, char *line, int start, int end);
 void    token_add_back(t_token **lst, t_token *nw);
 t_token *new_token(char *value, t_node_type type);
+char    **token_list_to_args(t_token *token);
 
 //source/_checker
 void	check_quotes(char str, bool *is_single, bool *is_double);

@@ -68,3 +68,18 @@ char	*expand_env_variables(char *input, t_env *env_list, int last_exit)
 	free(buffer);
 	return (result);
 }
+
+void	expand_token_list(t_token *token_list, t_env *env_list, int last_exit)
+{
+	while (token_list)
+	{
+		if (token_list->type == NODE_COMMAND || token_list->type == NODE_FILENAME)
+		{
+			char *expanded = expand_env_variables(token_list->value, env_list, last_exit);
+			free(token_list->value);
+			token_list->value = expanded;
+		}
+		token_list = token_list->next;
+	}
+}
+

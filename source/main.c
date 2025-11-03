@@ -4,8 +4,8 @@
 
 void	minishell_loop(t_env *env_list, int *last_exit)
 {
-	char	*expanded;
 	char	*input;
+	char	**args;
 	t_token	*token;
 
 	while (1)
@@ -24,12 +24,13 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 			break ;
 		}
 		token = split_line_to_token(input);
+		expand_token_list(token, env_list, *last_exit);
 		print_token_list(token);
-		handle_the_inputs(input, env_list, last_exit);
-		expanded = expand_env_variables(input, env_list, *last_exit);		
-		free(input);
-		free(expanded);
+		args = token_list_to_args(token);
+		handle_the_inputs(args, env_list, last_exit);		
 		free_token_list(token);
+		free_split(args);
+		free(input);
 	}
 }
 

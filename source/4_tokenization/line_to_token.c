@@ -5,7 +5,7 @@ t_token	*new_token(char *value, t_node_type type)
 	t_token *token = malloc(sizeof(t_token));
 	if (!token)
 		return (NULL);
-	token->value = ft_strdup(value); //aloquei memoria, depois preciso dar free nela. talvez um free_token_list;
+	token->value = ft_strdup(value);
 	token->type = type;
 	token->next = NULL;
 	return (token);
@@ -68,3 +68,28 @@ t_token	*split_line_to_token(char *line)
 		init_token_slice(&token, line, start, i);
 	return (token);
 }
+
+char	**token_list_to_args(t_token *token)
+{
+	int		count = 0;
+	t_token	*tmp = token;
+	char	**args;
+
+	while (tmp)
+	{
+		count++;
+		tmp = tmp->next;
+	}
+	args = malloc(sizeof(char *) * (count + 1));
+	if (!args)
+		return (NULL);
+	count = 0;
+	while (token)
+	{
+		args[count++] = ft_strdup(token->value);
+		token = token->next;
+	}
+	args[count] = NULL;
+	return (args);
+}
+
