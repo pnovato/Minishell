@@ -5,6 +5,7 @@ t_token	*new_token(char *value, t_node_type type)
 	t_token *token = malloc(sizeof(t_token));
 	if (!token)
 		return (NULL);
+	token->raw_value = ft_strdup(value);
 	token->value = ft_strdup(value);
 	token->type = type;
 	token->next = NULL;

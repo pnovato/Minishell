@@ -75,11 +75,31 @@ void	expand_token_list(t_token *token_list, t_env *env_list, int last_exit)
 	{
 		if (token_list->type == NODE_COMMAND || token_list->type == NODE_FILENAME)
 		{
-			char *expanded = expand_env_variables(token_list->value, env_list, last_exit);
+			char *expanded = expand_env_variables(token_list->raw_value, env_list, last_exit);
 			free(token_list->value);
 			token_list->value = expanded;
 		}
 		token_list = token_list->next;
+	}
+}
+
+void	remove_token_quotes(t_token *token)
+{
+	int		len;
+	char	*stripped;
+
+	while (token)
+	{
+		len = ft_strlen(token->value);
+		if (len >= 2 &&
+			((token->value[0] == '\'' && token->value[len - 1] == '\'') ||
+			 (token->value[0] == '"' && token->value[len - 1] == '"')))
+		{
+			stripped = ft_substr(token->value, 1, len - 2);
+			free(token->value);
+			token->value = stripped;
+		}
+		token = token->next;
 	}
 }
 

@@ -26,6 +26,7 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 		token = split_line_to_token(input);
 		expand_token_list(token, env_list, *last_exit);
 		print_token_list(token);
+		remove_token_quotes(token);
 		args = token_list_to_args(token);
 		handle_the_inputs(args, env_list, last_exit);		
 		free_token_list(token);
@@ -47,7 +48,7 @@ void	print_token_list(t_token *token)
 {
 	while (token)
 	{
-		printf("Token: [%s] -> Tipo: [%d]\n", token->value, token->type);
+		printf("Token: [%s] -> Tipo: [%d]\n", token->raw_value, token->type);
 		token = token->next;
 	}
 }

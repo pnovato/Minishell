@@ -43,6 +43,7 @@ typedef struct s_token
 {
 	t_node_type	type;
 	char		*value;
+	char		*raw_value;
 	struct s_token	*next;
 
 }	t_token;
@@ -83,6 +84,7 @@ char    *get_env_value(const char *key, t_env *env_list);
 char    *expand_env_variables(char *input, t_env *env_list, int last_exit);
 int		env_size(t_env *env);
 void    expand_token_list(t_token *token_list, t_env *env_list, int last_exit);
+void	remove_token_quotes(t_token *token);
 
 //source/3_built_ins
 
