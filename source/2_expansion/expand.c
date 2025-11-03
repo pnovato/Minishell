@@ -1,6 +1,6 @@
 #include "../../include/minishell.h"
 
-char	*get_env_value(char *key, t_env *env_list)
+char	*get_env_value(const char *key, t_env *env_list)
 {
 	while(env_list)
 	{

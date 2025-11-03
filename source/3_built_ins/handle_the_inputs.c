@@ -12,15 +12,8 @@
 
 #include "../../include/builtins.h"
 
-void	handle_the_inputs(char *input, t_env *env_list)
+static void	execute_builtin(char **args, t_env *env_list)
 {
-	char	**args;
-	int		i;
-
-	args = ft_split(input, ' ');
-	if (!args || !args[0])
-		return ;
-
 	if (ft_strcmp(args[0], "echo") == 0)
 		builtin_echo(args);
 	else if (ft_strcmp(args[0], "pwd") == 0)
@@ -37,9 +30,34 @@ void	handle_the_inputs(char *input, t_env *env_list)
 		builtin_unset(args, env_list);
 	else
 		ft_printf("Comando não reconhecido: %s\n", args[0]);
+}
+
+static void	free_args(char **args)
+{
+	int	i;
 
 	i = 0;
 	while (args[i])
-		free(args[i++]);
+	{
+		free(args[i]);
+		i++;
+	}
 	free(args);
+}
+
+void	handle_the_inputs(char *input, t_env *env_list, int *last_exit)
+{
+	char	**args;
+
+	args = ft_split(input, ' ');
+	if (!args || !args[0])
+	{
+		free_args(args);
+		return ;
+	}
+	if (is_builtin(args[0]))
+		execute_builtin(args, env_list);
+	else
+		execute_command(args, env_list, last_exit);
+	free_args(args);
 }

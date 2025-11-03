@@ -13,13 +13,11 @@
 #ifndef BUILTINS_H
 # define BUILTINS_H
 
-# include "minishell.h"
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
-# include <unistd.h>
+typedef struct s_env t_env;
 
-void	handle_the_inputs(char *input, t_env *env_list);
+# include "minishell.h"
+
+void	handle_the_inputs(char *input, t_env *env_list, int *last_exit);
 void	builtin_echo(char **args);
 void	builtin_pwd(void);
 void	builtin_cd(char **args, t_env *env_list);

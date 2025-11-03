@@ -2,7 +2,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-void	minishell_loop(t_env *env_list, int last_exit)
+void	minishell_loop(t_env *env_list, int *last_exit)
 {
 	char	*expanded;
 	char	*input;
@@ -22,8 +22,8 @@ void	minishell_loop(t_env *env_list, int last_exit)
 			free(input);
 			break ;
 		}
-		handle_the_inputs(input, env_list);
-		expanded = expand_env_variables(input, env_list, last_exit);		
+		handle_the_inputs(input, env_list, last_exit);
+		expanded = expand_env_variables(input, env_list, *last_exit);		
 		free(input);
 		free(expanded);
 	}
@@ -45,7 +45,7 @@ int main(int ac, char **av, char **envp)
 	(void)ac;
 	(void)av;
 	env_list = envp_to_list(envp);
-	minishell_loop(env_list, last_exit); 
+	minishell_loop(env_list, &last_exit); 
 	free_env_list(env_list);
 	return (0);
 }

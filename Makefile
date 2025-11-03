@@ -8,6 +8,7 @@ LIBFT = $(LIBFT_DIR)/libft.a
 SRC = main.c \
 1_pre_expansion/env_to_list.c \
 2_expansion/expand.c \
+2_expansion/env_size.c \
 list_utils/new_node.c \
 3_built_ins/builtin_cd.c \
 3_built_ins/builtin_pwd.c \
@@ -19,6 +20,15 @@ list_utils/new_node.c \
 3_built_ins/remove_env_var.c \
 3_built_ins/update_env_value.c \
 3_built_ins/handle_the_inputs.c \
+4_tokenization/line_to_token.c \
+5_execution/env_to_array.c \
+5_execution/is_builtin.c \
+5_execution/join_path.c \
+5_execution/execute_command.c \
+5_execution/join_key_value.c \
+5_execution/resolve_path.c \
+_checker/bool_checker.c \
+_checker/node_type_checker.c \
 free/free_list.c
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
