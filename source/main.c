@@ -48,7 +48,7 @@ void	print_token_list(t_token *token)
 {
 	while (token)
 	{
-		printf("Token: [%s] -> Tipo: [%d]\n", token->raw_value, token->type);
+		printf("Token_raw_value: [%s], Token_value : [%s] -> Tipo: [%d]\n", token->raw_value, token->value, token->type);
 		token = token->next;
 	}
 }
