@@ -101,6 +101,6 @@ bool	check_parenthesis_token(char *lin, int *i, int *s, t_token **l, t_quote *q)
 bool	check_space_token(char *lin, int *i, int *s, t_token **l, t_quote *q);
 bool	is_operator(char *str, int i);
 t_node_type check_token_type(char *str);
-
+bool    has_operator(t_token *token);
 
 #endif

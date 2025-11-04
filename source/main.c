@@ -25,7 +25,7 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 		}
 		token = split_line_to_token(input);
 		expand_token_list(token, env_list, *last_exit);
-		print_token_list(token);
+		//print_token_list(token);
 		remove_token_quotes(token);
 		args = token_list_to_args(token);
 		handle_the_inputs(args, env_list, last_exit);		

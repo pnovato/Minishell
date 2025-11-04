@@ -60,3 +60,15 @@ bool	is_operator(char *str, int i)
 		return (true);
 	return (false);
 }
+
+bool	has_operator(t_token *token)
+ {
+	while (token)
+	{
+		if (check_token_type(token->value) != NODE_COMMAND)
+			return (true);
+		token = token->next;
+	}
+	return (false);
+}
+
