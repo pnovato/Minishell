@@ -12,23 +12,6 @@ t_token	*new_token(char *value, t_node_type type)
 	return (token);
 }
 
-void	token_add_back(t_token **lst, t_token *nw)
-{
-	t_token *node;
-
-	if (!lst || !nw)
-		return;
-	if (*lst == NULL)
-	{
-		*lst = nw;
-		return;
-	}
-	node = *lst;
-	while (node->next != NULL)
-		node = node->next;
-	node->next = nw;
-}
-
 void	init_token_slice(t_token **lst, char *line, int start, int end)
 {
 	char		*value;
