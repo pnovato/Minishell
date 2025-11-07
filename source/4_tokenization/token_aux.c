@@ -1,4 +1,4 @@
-#include "../../include/minishell.c"
+#include "../../include/minishell.h"
 
 void	token_add_back(t_token **lst, t_token *nw)
 {

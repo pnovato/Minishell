@@ -1,19 +1,27 @@
-#include "../../include/minishell.c"
+#include "../../include/minishell.h"
 
 char **token_op_to_args(t_token *start, t_token *end)
 {
 	int	count;
 	t_token	*tmp;
-	char	**args
+	char	**args;
 	int	i;
 
 	count = 0;
 	tmp = start;
 	i = 0;
+	if (!tmp->value)
+	{
+    		printf("token_range_to_args: NULL token value detectado!\n");
+    		return NULL;
+	}
 	while (tmp && tmp != end->next)
 	{
 		if (check_token_type(tmp->value) != NODE_COMMAND)
+		{
+			printf("token_range_to_args: operador encontrado = %s\n", tmp->value);
 			return (NULL);
+		}
 		count++;
 		tmp = tmp->next;
 	}
@@ -22,6 +30,12 @@ char **token_op_to_args(t_token *start, t_token *end)
 	while(i < count)
 	{
 		args[i] = ft_strdup(tmp->value);
+		if (!args[i])
+		{
+   			 printf("Falha ao duplicar token: %s\n", tmp->value);
+    			free_split(args);
+    			return NULL;
+		}
 		tmp = tmp->next;
 		i++;
 	}

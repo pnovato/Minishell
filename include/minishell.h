@@ -70,6 +70,7 @@ int main(int ac, char **av, char **envp);
 void    print_env_list(t_env *env);
 void	print_token_list(t_token *token);
 void    minishell_loop(t_env *env_list, int *last_exit);
+void print_ast(t_node *node, int depth);
 
 // source/list_utils
 t_env	*create_env_node(char *key, char *value);
@@ -94,6 +95,15 @@ void    init_token_slice(t_token **lst, char *line, int start, int end);
 void    token_add_back(t_token **lst, t_token *nw);
 t_token *new_token(char *value, t_node_type type);
 char    **token_list_to_args(t_token *token);
+void	token_add_back(t_token **lst, t_token *nw);
+
+//source/5_parsing
+t_node  *build_ast(t_token *start, t_token *end);
+t_node  *alloc_type(t_token *start, t_token *end, t_token *op);
+char **token_op_to_args(t_token *start, t_token *end);
+t_token *ft_lstlast_token(t_token *token);
+t_token *find_last_operator(t_token *start, t_token *end);
+t_token *op_before(t_token *start, t_token *target);
 
 //source/_checker
 void	check_quotes(char str, bool *is_single, bool *is_double);
@@ -102,5 +112,6 @@ bool	check_space_token(char *lin, int *i, int *s, t_token **l, t_quote *q);
 bool	is_operator(char *str, int i);
 t_node_type check_token_type(char *str);
 bool    has_operator(t_token *token);
+const char *node_type_str(t_node_type type);
 
 #endif

@@ -21,12 +21,15 @@ list_utils/new_node.c \
 3_built_ins/update_env_value.c \
 3_built_ins/handle_the_inputs.c \
 4_tokenization/line_to_token.c \
-5_execution/env_to_array.c \
-5_execution/is_builtin.c \
-5_execution/join_path.c \
-5_execution/execute_command.c \
-5_execution/join_key_value.c \
-5_execution/resolve_path.c \
+4_tokenization/token_aux.c \
+5_parsing/ast.c \
+5_parsing/token_ast_aux.c \
+6_execution/env_to_array.c \
+6_execution/is_builtin.c \
+6_execution/join_path.c \
+6_execution/execute_command.c \
+6_execution/join_key_value.c \
+6_execution/resolve_path.c \
 _checker/bool_checker.c \
 _checker/node_type_checker.c
 

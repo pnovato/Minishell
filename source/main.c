@@ -7,6 +7,7 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 	char	*input;
 	char	**args;
 	t_token	*token;
+	t_node	*ast;
 
 	while (1)
 	{
@@ -27,10 +28,24 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 		expand_token_list(token, env_list, *last_exit);
 		//print_token_list(token);
 		remove_token_quotes(token);
-		args = token_list_to_args(token);
-		handle_the_inputs(args, env_list, last_exit);		
+		if (has_operator(token))
+		{
+			ast = build_ast(token, ft_lstlast_token(token));
+			if (ast)
+			{	
+				print_ast(ast, 0);
+				//free_ast(ast); adicionar esta funcao, para liberar memoria recursivamente
+			}
+			else
+				printf("erro na AST\n");
+		}
+		else
+		{
+			args = token_list_to_args(token);
+			handle_the_inputs(args, env_list, last_exit);
+			free_split(args);
+		}		
 		free_token_list(token);
-		free_split(args);
 		free(input);
 	}
 }
@@ -51,6 +66,29 @@ void	print_token_list(t_token *token)
 		printf("Token: [%s] -> Tipo: [%d]\n", token->raw_value, token->type);
 		token = token->next;
 	}
+}
+
+void print_ast(t_node *node, int depth)
+{
+	if (!node)
+		return;
+
+	for (int i = 0; i < depth; i++)
+		printf(" ");
+	if (node->type == NODE_COMMAND)
+	{
+		printf("[%s]", node_type_str(node->type));
+		if (node->av)
+		{
+			for (int i = 0; node->av[i]; i++)
+				printf(" %s", node->av[i]);
+		}
+		printf("\n");
+	}
+	else
+		printf("[%s]\n", node_type_str(node->type));
+	print_ast(node->left, depth + 1);
+	print_ast(node->right, depth + 1);
 }
 
 int main(int ac, char **av, char **envp)

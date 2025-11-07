@@ -22,3 +22,20 @@ t_node_type check_token_type(char *str)
 		return (NODE_GROUP);
 	return (NODE_COMMAND);
 }
+
+const char *node_type_str(t_node_type type)
+{
+	switch (type)
+	{
+		case NODE_COMMAND: return "COMMAND";
+		case NODE_PIPE: return "PIPE";
+		case NODE_RREDIRECT: return ">";
+		case NODE_LREDIRECT: return "<";
+		case NODE_RSHIFT: return ">>";
+		case NODE_LSHIFT: return "<<";
+		case NODE_AND: return "&&";
+		case NODE_OR: return "||";
+		case NODE_GROUP: return "GROUP";
+		default: return "UNKNOWN";
+	}
+}
