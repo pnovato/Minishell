@@ -41,3 +41,26 @@ void	free_token_list(t_token *token)
 		token = temp;
 	}
 }
+
+void	free_ast(t_node *node)
+{
+	int	i;
+	
+	if (!node)
+		return;
+	if (node->av)
+	{
+		i = 0;
+		while (node->av[i])
+		{
+			free(node->av[i]);
+			i++;
+		}
+		free(node->av);
+	}
+	if (node->redirect_file)
+		free(node->redirect_file);
+	free_ast(node->left);	
+	free_ast(node->right);
+	free(node);
+}

@@ -14,6 +14,7 @@
 # define EXECUTION_H
 
 typedef struct s_env t_env;
+typedef struct s_node t_node;
 
 # include "minishell.h"
 
@@ -23,5 +24,8 @@ char	*resolve_path(const char *cmd, t_env *env_list);
 char	*join_path(const char *dir, const char *cmd);
 char	**env_to_array(t_env *env);
 int		is_builtin(const char *cmd);
+int	exec_pipe_node(t_node *node, t_env *env_list, int *last_exit);
+int	exec_ast(t_node *node, t_env *env_list, int *last_exit);
+int	exec_command_node(t_node *node, t_env *env_list, int *last_exit);
 
 #endif

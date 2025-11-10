@@ -27,5 +27,6 @@ void	builtin_export(char **args, t_env *env);
 void	builtin_unset(char **args, t_env *env);
 void	update_env_value(t_env **env, const char *key, const char *value);
 void	remove_env_var(t_env **env, const char *key);
+void    execute_builtin(char **args, t_env *env_list);
 
 #endif

@@ -12,7 +12,7 @@
 
 #include "../../include/builtins.h"
 
-static void	execute_builtin(char **args, t_env *env_list)
+void	execute_builtin(char **args, t_env *env_list)
 {
 	if (ft_strcmp(args[0], "echo") == 0)
 		builtin_echo(args);

@@ -76,6 +76,7 @@ void print_ast(t_node *node, int depth);
 t_env	*create_env_node(char *key, char *value);
 void	free_env_list(t_env *env);
 void    free_token_list(t_token *token);
+void    free_ast(t_node *node);
 
 // source/1_pre_expansion
 t_env   *envp_to_list(char **envp);

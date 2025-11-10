@@ -33,8 +33,8 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 			ast = build_ast(token, ft_lstlast_token(token));
 			if (ast)
 			{	
-				print_ast(ast, 0);
-				//free_ast(ast); adicionar esta funcao, para liberar memoria recursivamente
+				*last_exit = exec_ast(ast, env_list, last_exit);
+				free_ast(ast); //adicionar esta funcao, para liberar memoria recursivamente
 			}
 			else
 				printf("erro na AST\n");
