@@ -12,14 +12,14 @@ char **token_op_to_args(t_token *start, t_token *end)
 	i = 0;
 	if (!tmp->value)
 	{
-    		printf("token_range_to_args: NULL token value detectado!\n");
+    		//printf("token_range_to_args: NULL token value detectado!\n");
     		return NULL;
 	}
 	while (tmp && tmp != end->next)
 	{
 		if (check_token_type(tmp->value) != NODE_COMMAND)
 		{
-			printf("token_range_to_args: operador encontrado = %s\n", tmp->value);
+			//printf("token_range_to_args: operador encontrado = %s\n", tmp->value);
 			return (NULL);
 		}
 		count++;
@@ -32,7 +32,7 @@ char **token_op_to_args(t_token *start, t_token *end)
 		args[i] = ft_strdup(tmp->value);
 		if (!args[i])
 		{
-   			 printf("Falha ao duplicar token: %s\n", tmp->value);
+   			 //printf("Falha ao duplicar token: %s\n", tmp->value);
     			free_split(args);
     			return NULL;
 		}
