@@ -11,9 +11,9 @@ t_node_type check_token_type(char *str)
 	if (ft_strncmp(str, "<", 2) == 0)
 		return (NODE_LREDIRECT);
 	if (ft_strncmp(str, ">>", 3) == 0)
-		return (NODE_RSHIFT);
+		return (NODE_APPEND);
 	if (ft_strncmp(str, "<<", 3) == 0)
-		return (NODE_LSHIFT);
+		return (NODE_HEREDOC);
 	if (ft_strncmp(str, "&&", 3) == 0)
 		return (NODE_AND);
 	if (ft_strncmp(str, "||", 3) == 0)
@@ -33,10 +33,10 @@ const char *node_type_str(t_node_type type)
 		return ("NODE_RREDIRECT");
 	if (type == NODE_LREDIRECT)
 		return ("NODE_LREDIRECT");
-	if (type == NODE_RSHIFT)
-		return ("NODE_RSHIFT");
-	if (type == NODE_LSHIFT)
-		return ("NODE_LSHIFT");
+	if (type == NODE_APPEND)
+		return ("NODE_APPEND");
+	if (type == NODE_HEREDOC)
+		return ("NODE_HEREDOC");
 	if (type == NODE_AND)
 		return ("NODE_AND");
 	if (type == NODE_OR)
