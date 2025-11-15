@@ -27,5 +27,6 @@ int		is_builtin(const char *cmd);
 int	exec_pipe_node(t_node *node, t_env *env_list, int *last_exit);
 int	exec_ast(t_node *node, t_env *env_list, int *last_exit);
 int	exec_command_node(t_node *node, t_env *env_list, int *last_exit);
+int     exec_redirect(t_node *node, t_env *env_list, int *last_exit);
 
 #endif

@@ -10,6 +10,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <errno.h>
+# include <fcntl.h>
 # include "../libft/libft.h"
 # include "execution.h"
 # include "builtins.h"

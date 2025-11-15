@@ -12,7 +12,7 @@ t_node  *build_ast(t_token *start, t_token *end)
        cmd = malloc(sizeof(t_node));
        if (!cmd)
 	       return NULL;
-       printf("build_ast: intervalo [%s] ... [%s]\n", start->value, end->value);
+	printf("build_ast: intervalo [%s] ... [%s]\n", start->value, end->value);
        cmd->type = NODE_COMMAND;
        cmd->av = token_op_to_args(start, end);
        cmd->redirect_file = NULL;
@@ -33,25 +33,26 @@ t_node  *build_ast(t_token *start, t_token *end)
 t_node  *alloc_type(t_token *start, t_token *end, t_token *op)
 {       
         t_node	*node;
+	t_token	*op_prev;
+	t_token	*op_next;
 	
-	if (!start || !end || !op || !op->next)
+	op_prev = op_before(start, op);
+	op_next = op->next;
+
+	if (!start || !end || !op || !op_next)
 		return (NULL);
-	if (start == op || end == op)
-		return (NULL);
+	
 	node = malloc(sizeof(t_node));
 	if (!node)
 		return (NULL);
-	printf("alloc_type: operador = %s\n", op->value);
 	node->type = check_token_type(op->value);
 	node->av = NULL;
 	node->redirect_file = NULL;
-	node->redirect_type = 0;
-	node->left = build_ast(start, op_before(start, op));
-	node->right = build_ast(op->next, end);
-	if (!node->left || !node->right)
+	node->left = NULL;
+	node->right = NULL;
+
+	if (node->type = NODE_PIPE)
 	{
-		free(node);
-		return (NULL);
+
 	}
-	return (node);
 }

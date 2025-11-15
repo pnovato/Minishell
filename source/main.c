@@ -5,7 +5,7 @@
 void	minishell_loop(t_env *env_list, int *last_exit)
 {
 	char	*input;
-	char	**args;
+	//char	**args;
 	t_token	*token;
 	t_node	*ast;
 
@@ -41,14 +41,18 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 		}
 		else
 		{
-			args = token_list_to_args(token);
-			handle_the_inputs(args, env_list, last_exit);
-			free_split(args);
+			ast = build_ast(token, ft_lstlast_token(token));
+			if (ast)
+			{
+				*last_exit = exec_ast(ast, env_list, last_exit);
+				free_ast(ast);
+			}
 		}		
 		free_token_list(token);
 		free(input);
 	}
 }
+
 
 void	print_env_list(t_env *env)
 {
