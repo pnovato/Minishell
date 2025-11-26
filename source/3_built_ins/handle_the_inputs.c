@@ -32,13 +32,3 @@ void	execute_builtin(char **args, t_env *env_list)
 		ft_printf("Comando não reconhecido: %s\n", args[0]);
 }
 
-
-void	handle_the_inputs(char **args, t_env *env_list, int *last_exit)
-{
-	if (!args || !args[0])
-		return ;
-	if (is_builtin(args[0]))
-		execute_builtin(args, env_list);
-	else
-		execute_command(args, env_list, last_exit);
-}

@@ -17,7 +17,12 @@ int	exec_redirect(t_node *node, t_env *env_list, int *last_exit)
 		fd = open(node->redirect_file,
 				O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	else if (node->type == NODE_LREDIRECT)     // comando < ficheiro
-		fd = open(node->redirect_file, O_RDONLY);
+	{
+		if (node->heredoc_fd > 0)
+			fd = node->heredoc_fd;
+		else
+			fd = open(node->redirect_file, O_RDONLY);
+	}
 	else
 	{
 		*last_exit = 1;

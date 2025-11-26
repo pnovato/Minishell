@@ -35,6 +35,7 @@ typedef struct s_node
 	char		**av;
 	char		*redirect_file;
 	int		redirect_type;
+	int		heredoc_fd;
 	struct s_node	*left;
 	struct s_node	*right;
 

@@ -17,7 +17,8 @@ t_node  *build_ast(t_token *start, t_token *end)
        cmd->av = token_op_to_args(start, end);
        cmd->redirect_file = NULL;
        cmd->redirect_type = 0;
-       cmd->left = NULL;
+	cmd->heredoc_fd = 0;
+    	cmd->left = NULL;
        cmd->right = NULL;
        char **args = token_op_to_args(start, end);
        if (!args)
@@ -50,6 +51,21 @@ t_node  *alloc_type(t_token *start, t_token *end, t_token *op)
 	node->redirect_file = NULL;
 	node->left = NULL;
 	node->right = NULL;
+
+        if (node->type == NODE_HEREDOC)
+        {
+                node->left = build_ast(start, op_prev);
+                node->redirect_file = ft_strdup(op_next->value);
+                node->right = NULL;
+                if (!node->left || !node->redirect_file)
+                {
+                        free(node->redirect_file);
+                        free(node);
+                        return (NULL);
+                }
+                return (node);
+        }
+
 
 	if (node->type == NODE_PIPE)
 	{

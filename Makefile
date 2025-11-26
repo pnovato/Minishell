@@ -27,11 +27,11 @@ list_utils/new_node.c \
 6_execution/env_to_array.c \
 6_execution/is_builtin.c \
 6_execution/join_path.c \
-6_execution/execute_command.c \
 6_execution/join_key_value.c \
 6_execution/resolve_path.c \
 6_execution/exec_ast_pipe.c \
 6_execution/exec_ast_redirect.c \
+6_execution/exec_ast_heredoc.c \
 6_execution/exec_ast.c \
 _checker/bool_checker.c \
 _checker/node_type_checker.c

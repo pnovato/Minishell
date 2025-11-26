@@ -18,7 +18,6 @@ typedef struct s_node t_node;
 
 # include "minishell.h"
 
-void	execute_command(char **args, t_env *env_list, int *last_exit);
 char	*join_key_value(const char *key, const char *value);
 char	*resolve_path(const char *cmd, t_env *env_list);
 char	*join_path(const char *dir, const char *cmd);
@@ -28,5 +27,6 @@ int	exec_pipe_node(t_node *node, t_env *env_list, int *last_exit);
 int	exec_ast(t_node *node, t_env *env_list, int *last_exit);
 int	exec_command_node(t_node *node, t_env *env_list, int *last_exit);
 int     exec_redirect(t_node *node, t_env *env_list, int *last_exit);
+int     exec_heredoc(t_node *node, t_env *env_list, int *last_exit);
 
 #endif

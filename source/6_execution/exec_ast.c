@@ -4,6 +4,8 @@ int exec_ast(t_node *node, t_env *env_list, int *last_exit)
 {	
 	if (!node)
 		return (1); //erro generico
+	if (node->type == NODE_HEREDOC)
+		return (exec_heredoc(node, env_list, last_exit));
 	if (node->type == NODE_COMMAND)
 		return (exec_command_node(node, env_list, last_exit));
 	if (node->type == NODE_PIPE)

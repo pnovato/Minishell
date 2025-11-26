@@ -17,7 +17,6 @@ typedef struct s_env t_env;
 
 # include "minishell.h"
 
-void	handle_the_inputs(char **args, t_env *env_list, int *last_exit);
 void	builtin_echo(char **args);
 void	builtin_pwd(void);
 void	builtin_cd(char **args, t_env *env_list);
