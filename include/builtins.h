@@ -6,7 +6,7 @@
 /*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:34:06 by matheusless       #+#    #+#             */
-/*   Updated: 2025/09/26 14:10:13 by matheusless      ###   ########.fr       */
+/*   Updated: 2025/12/03 00:20:32 by matheusless      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,15 @@ typedef struct s_env t_env;
 
 # include "minishell.h"
 
-void	builtin_echo(char **args);
-void	builtin_pwd(void);
-void	builtin_cd(char **args, t_env *env_list);
-void	builtin_exit(char **args);
-void	builtin_env(t_env *env);
-void	builtin_export(char **args, t_env *env);
-void	builtin_unset(char **args, t_env *env);
+int		builtin_echo(char **args);
+int     builtin_pwd(void);
+int		builtin_cd(char **args, t_env *env);
+int		builtin_exit(char **args);
+int		builtin_env(t_env *env_list);
+int		builtin_export(char **args, t_env *env);
+int		builtin_unset(char **args, t_env *env);
 void	update_env_value(t_env **env, const char *key, const char *value);
 void	remove_env_var(t_env **env, const char *key);
-void    execute_builtin(char **args, t_env *env_list);
+int		execute_builtin(char **args, t_env *env_list);
 
 #endif

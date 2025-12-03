@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_echo.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/20 15:44:00 by ...               #+#    #+#             */
+/*   Updated: 2025/12/03 00:42:03 by matheusless      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/builtins.h"
 
-static int	is_n_flag(const char *arg)
+static int	is_n_option(char *arg)
 {
 	int	i;
 
-	if (!arg || arg[0] != '-' || arg[1] != 'n')
+	if (!arg || arg[0] != '-')
 		return (0);
 	i = 1;
 	while (arg[i])
@@ -16,25 +28,26 @@ static int	is_n_flag(const char *arg)
 	return (1);
 }
 
-void	builtin_echo(char **args)
+int	builtin_echo(char **args)
 {
 	int	i;
-	int	no_newline;
+	int	n_flag;
 
 	i = 1;
-	no_newline = 0;
-	while (args[i] && is_n_flag(args[i]))
+	n_flag = 0;
+	while (args[i] && is_n_option(args[i]))
 	{
-		no_newline = 1;
+		n_flag = 1;
 		i++;
 	}
 	while (args[i])
 	{
-		printf("%s", args[i]);
+		ft_putstr_fd(args[i], 1);
 		if (args[i + 1])
-			printf(" ");
+			ft_putchar_fd(' ', 1);
 		i++;
 	}
-	if (!no_newline)
-		printf("\n");
+	if (n_flag == 0)
+		ft_putchar_fd('\n', 1);
+	return (0);
 }
