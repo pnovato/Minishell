@@ -12,7 +12,7 @@
 
 #include "../../include/builtins.h"
 
-void	execute_builtin(char **args, t_env *env_list)
+int	execute_builtin(char **args, t_env *env_list)
 {
 	if (ft_strcmp(args[0], "echo") == 0)
 		builtin_echo(args);
@@ -30,5 +30,6 @@ void	execute_builtin(char **args, t_env *env_list)
 		builtin_unset(args, env_list);
 	else
 		ft_printf("Comando não reconhecido: %s\n", args[0]);
+	return (0);
 }
 

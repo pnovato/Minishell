@@ -10,34 +10,30 @@ char **token_op_to_args(t_token *start, t_token *end)
 	count = 0;
 	tmp = start;
 	i = 0;
-	if (!tmp->value)
-	{
-    		//printf("token_range_to_args: NULL token value detectado!\n");
-    		return NULL;
-	}
 	while (tmp && tmp != end->next)
 	{
-		if (check_token_type(tmp->value) != NODE_COMMAND)
-		{
-			//printf("token_range_to_args: operador encontrado = %s\n", tmp->value);
-			return (NULL);
-		}
-		count++;
+		if (tmp->value && tmp->value[0] != '\0' && check_token_type(tmp->value) == NODE_COMMAND)
+			count++;
 		tmp = tmp->next;
 	}
 	args = malloc(sizeof(char *) * (count + 1));
+	if (!args)
+		return NULL;
 	tmp = start;
-	while(i < count)
+	while(tmp && tmp != end->next)
 	{
-		args[i] = ft_strdup(tmp->value);
-		if (!args[i])
+		if (tmp->value && tmp->value[0] != '\0' && check_token_type(tmp->value) == NODE_COMMAND)
 		{
-   			 //printf("Falha ao duplicar token: %s\n", tmp->value);
-    			free_split(args);
-    			return NULL;
+			args[i] = ft_strdup(tmp->value);
+			if (!args[i])
+			{
+   				 //printf("Falha ao duplicar token: %s\n", tmp->value);
+    				free_split(args);
+    				return NULL;
+			}
+			i++;
 		}
 		tmp = tmp->next;
-		i++;
 	}
 	args[count] = NULL;
 	return (args);

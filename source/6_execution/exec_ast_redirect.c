@@ -6,90 +6,56 @@ int	exec_redirect(t_node *node, t_env *env_list, int *last_exit)
 	pid_t	pid;
 	int		status;
 
-	if (!node || !node->left || !node->redirect_file)
-	{
-		*last_exit = 1;
-		return (1);
-	}
-
+	if (!node || !node->left)
+		return (*last_exit = 1);
 	// 1) Abrir o ficheiro de acordo com o tipo de redirecionamento
-	if (node->type == NODE_RREDIRECT)          // comando > ficheiro
-		fd = open(node->redirect_file,
-				O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	else if (node->type == NODE_LREDIRECT)     // comando < ficheiro
+	if (node->heredoc_fd > 0)
 	{
-		if (node->heredoc_fd > 0)
-			fd = node->heredoc_fd;
-		else
-			fd = open(node->redirect_file, O_RDONLY);
+		//printf("HEREDOC DETECTADO: usando fd = %d\n", node->heredoc_fd);
+		fd = node->heredoc_fd;
 	}
+	else if (node->type == NODE_RREDIRECT)          // comando > ficheiro
+		fd = open(node->redirect_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else if (node->type == NODE_LREDIRECT)		// comando < ficheiro
+	{
+		if (!node->redirect_file)
+			return (*last_exit = 1);
+		fd = open(node->redirect_file, O_RDONLY);
+	}
+	else if (node->type == NODE_APPEND)
+		fd = open(node->redirect_file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else
-	{
-		*last_exit = 1;
-		return (1);
-	}
-
+		return (*last_exit = 1);	
 	if (fd < 0)
-	{
-		perror("open");
-		*last_exit = 1;
-		return (1);
-	}
-
+		return (perror("open"), *last_exit = 1);
 	// 2) Criar processo filho para executar o comando com FDs redirecionados
 	pid = fork();
 	if (pid == -1)
 	{
-		perror("fork");
-		close(fd);
-		*last_exit = 1;
-		return (1);
+		close (fd);
+		return (perror("fork"), *last_exit = 1);
 	}
 	if (pid == 0)
 	{
 		// --- FILHO ---
-		if (node->type == NODE_RREDIRECT)
+		if (node->type == NODE_RREDIRECT || node->type == NODE_APPEND)
 		{
-			if (dup2(fd, STDOUT_FILENO) < 0)
-			{
-				perror("dup2");
-				exit(1);
-			}
+			//printf("Redirecionando STDOUT com fd = %d\n", fd);
+			dup2(fd, STDOUT_FILENO);
 		}
-		else if (node->type == NODE_LREDIRECT)
+		else
 		{
-			if (dup2(fd, STDIN_FILENO) < 0)
-			{
-				perror("dup2");
-				exit(1);
-			}
+			//printf("Redirecionando STDIN com fd = %d\n", fd);
+			dup2(fd, STDIN_FILENO);
 		}
-		close(fd);
-
-		// Executar o comando que está na esquerda do redirecionamento
-		if (!node->left->av || !node->left->av[0])
-			exit(0);
-
-		if (is_builtin(node->left->av[0]))
-		{
-			execute_builtin(node->left->av, env_list);
-			exit(0);
-		}
-		execve(resolve_path(node->left->av[0], env_list),
-			node->left->av,
-			env_to_array(env_list));
-		perror("execve");
-		exit(127);
+		close (fd);
+		exit (exec_ast(node->left, env_list, last_exit));
 	}
 
 	// --- PAI ---
 	close(fd);
 	if (waitpid(pid, &status, 0) == -1)
-	{
-		perror("waitpid");
-		*last_exit = 1;
-		return (1);
-	}
+		return (perror("waitpid"), *last_exit = 1);
 	if (WIFEXITED(status))
 		*last_exit = WEXITSTATUS(status);
 	else

@@ -30,6 +30,13 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 		remove_token_quotes(token);
 		if (has_operator(token))
 		{
+			//t_token *tmp = token;
+			//while (tmp)
+			//{
+			//	printf("TOKEN: [%s] | TYPE: %s\n", tmp->value, node_type_str(tmp->type));
+			//	tmp = tmp->next;
+			//}
+
 			ast = build_ast(token, ft_lstlast_token(token));
 			if (ast)
 			{	

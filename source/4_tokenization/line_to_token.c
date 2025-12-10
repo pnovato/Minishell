@@ -42,10 +42,30 @@ t_token	*split_line_to_token(char *line)
 	while (line[i])
 	{
 		check_quotes(line[i], &q.is_single, &q.is_double);
+		if (!q.is_single && !q.is_double)
+		{
+			if (line[i] == '>' && line[i+1] == '>')
+			{
+				if (i > start)
+					init_token_slice(&token, line, start, i);
+				init_token_slice(&token, line, i, i + 2);
+				i += 2;
+				start = i;
+				continue;
+			}
+			else if (line[i] == '<' && line[i+1] == '<')
+			{
+				init_token_slice(&token, line, start, i);
+                                init_token_slice(&token, line, i, i + 2);
+                                i += 2;
+                                start = i;
+                                continue;
+			}
+		}
 		if (check_parenthesis_token(line, &i, &start, &token, &q))
-			continue;
-		if (check_space_token(line, &i, &start, &token, &q))
-			continue;
+                        continue;
+                if (check_space_token(line, &i, &start, &token, &q))
+                        continue;
 		i++;
 	}
 	if (i > start)
