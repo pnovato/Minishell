@@ -30,17 +30,13 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 		remove_token_quotes(token);
 		if (has_operator(token))
 		{
-			//t_token *tmp = token;
-			//while (tmp)
-			//{
-			//	printf("TOKEN: [%s] | TYPE: %s\n", tmp->value, node_type_str(tmp->type));
-			//	tmp = tmp->next;
-			//}
-
 			ast = build_ast(token, ft_lstlast_token(token));
+			//print_ast(ast, 0);
 			if (ast)
 			{	
-				*last_exit = exec_ast(ast, env_list, last_exit);
+				resolve_heredocs(ast, env_list, last_exit);
+				assert_tree_no_heredocs(ast);
+				*last_exit = exec_ast(ast, env_list, last_exit, 0);
 				free_ast(ast); //adicionar esta funcao, para liberar memoria recursivamente
 			}
 			else
@@ -51,7 +47,9 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 			ast = build_ast(token, ft_lstlast_token(token));
 			if (ast)
 			{
-				*last_exit = exec_ast(ast, env_list, last_exit);
+				resolve_heredocs(ast, env_list, last_exit);
+				assert_tree_no_heredocs(ast);
+				*last_exit = exec_ast(ast, env_list, last_exit, 0);
 				free_ast(ast);
 			}
 		}		
@@ -86,18 +84,14 @@ void print_ast(t_node *node, int depth)
 
 	for (int i = 0; i < depth; i++)
 		printf(" ");
-	if (node->type == NODE_COMMAND)
-	{
-		printf("[%s]", node_type_str(node->type));
-		if (node->av)
-		{
-			for (int i = 0; node->av[i]; i++)
-				printf(" %s", node->av[i]);
-		}
-		printf("\n");
-	}
-	else
-		printf("[%s]\n", node_type_str(node->type));
+	printf("[AST] type=%d", node->type);
+	if (node->av && node->av[0])
+		printf(" | cmd=%s", node->av[0]);
+	if (node->redirect_file)
+		printf(" | file=%s", node->redirect_file);
+	if (node->heredoc_fd > 0)
+		printf(" | heredoc_fd=%d", node->heredoc_fd);
+	printf("\n");
 	print_ast(node->left, depth + 1);
 	print_ast(node->right, depth + 1);
 }

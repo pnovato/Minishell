@@ -24,9 +24,11 @@ char	*join_path(const char *dir, const char *cmd);
 char	**env_to_array(t_env *env);
 int		is_builtin(const char *cmd);
 int	exec_pipe_node(t_node *node, t_env *env_list, int *last_exit);
-int	exec_ast(t_node *node, t_env *env_list, int *last_exit);
-int	exec_command_node(t_node *node, t_env *env_list, int *last_exit);
-int     exec_redirect(t_node *node, t_env *env_list, int *last_exit);
+int	exec_ast(t_node *node, t_env *env_list, int *last_exit, int in_child);
+int	exec_command_node(t_node *node, t_env *env_list, int *last_exit, int in_child);
+int     exec_redirect(t_node *node, t_env *env_list, int *last_exit, int in_child);
 int     exec_heredoc(t_node *node, t_env *env_list, int *last_exit);
-
+t_node	*copy_ast(t_node *node);
+void	resolve_heredocs(t_node *node, t_env *env_list, int *last_exit);
+void	assert_tree_no_heredocs(t_node *node);
 #endif
