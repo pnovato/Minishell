@@ -6,6 +6,7 @@
 # include <stdbool.h>
 # include <sys/wait.h>
 # include <sys/types.h>
+# include <signal.h>
 # include <unistd.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -107,6 +108,10 @@ char **token_op_to_args(t_token *start, t_token *end);
 t_token *ft_lstlast_token(t_token *token);
 t_token *find_last_operator(t_token *start, t_token *end);
 t_token *op_before(t_token *start, t_token *target);
+
+//source/7_signals
+void    handle_sigint(int sig);
+void    setup_signals_main(void);
 
 //source/_checker
 void	check_quotes(char str, bool *is_single, bool *is_double);

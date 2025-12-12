@@ -11,6 +11,7 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 
 	while (1)
 	{
+		setup_signals_main();
 		input = readline("minishell$ ");
 		if (!input)
 		{

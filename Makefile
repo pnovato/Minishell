@@ -33,6 +33,8 @@ list_utils/new_node.c \
 6_execution/exec_ast_redirect.c \
 6_execution/exec_ast_heredoc.c \
 6_execution/exec_ast.c \
+7_signals/setup_main.c \
+7_signals/sigint.c \
 _checker/bool_checker.c \
 _checker/node_type_checker.c
 
