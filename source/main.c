@@ -2,6 +2,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+int	g_signal_status = 0;
+
 void	minishell_loop(t_env *env_list, int *last_exit)
 {
 	char	*input;
@@ -12,9 +14,18 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 	while (1)
 	{
 		setup_signals_main();
+		if (g_signal_status == 130)
+			g_signal_status = 0;
+		rl_on_new_line();
 		input = readline("minishell$ ");
 		if (!input)
 		{
+			//if (g_signal_status == 130)
+    			//{
+       			//	g_signal_status = 0;
+        		//	free(input);
+			//	continue;
+    			//}
 			printf("exit\n");
 			break ;
 		}
@@ -35,10 +46,18 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 			//print_ast(ast, 0);
 			if (ast)
 			{	
-				resolve_heredocs(ast, env_list, last_exit);
+				if (resolve_heredocs(ast, env_list, last_exit))
+				{
+					//fprintf(stderr, "AST abortada, não será executada.\n");
+					g_signal_status = 0;
+					free_ast(ast);
+					free_token_list(token);
+					free(input);
+					continue;
+				}
 				assert_tree_no_heredocs(ast);
 				*last_exit = exec_ast(ast, env_list, last_exit, 0);
-				free_ast(ast); //adicionar esta funcao, para liberar memoria recursivamente
+				free_ast(ast);
 			}
 			else
 				printf("erro na AST\n");
@@ -48,14 +67,20 @@ void	minishell_loop(t_env *env_list, int *last_exit)
 			ast = build_ast(token, ft_lstlast_token(token));
 			if (ast)
 			{
-				resolve_heredocs(ast, env_list, last_exit);
+				if (resolve_heredocs(ast, env_list, last_exit))
+				{
+					//fprintf(stderr, "AST abortada, não será executada.\n");
+					g_signal_status = 0;
+					free_ast(ast);
+					free_token_list(token);
+					free(input);
+					continue;
+				}
 				assert_tree_no_heredocs(ast);
 				*last_exit = exec_ast(ast, env_list, last_exit, 0);
 				free_ast(ast);
 			}
 		}		
-		free_token_list(token);
-		free(input);
 	}
 }
 

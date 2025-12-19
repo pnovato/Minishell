@@ -16,6 +16,8 @@
 # include "execution.h"
 # include "builtins.h"
 
+extern int	g_signal_status;
+
 typedef enum e_node_type
 {
         NODE_COMMAND,
@@ -112,6 +114,10 @@ t_token *op_before(t_token *start, t_token *target);
 //source/7_signals
 void    handle_sigint(int sig);
 void    setup_signals_main(void);
+void    setup_signals_child(void);
+void    setup_signals_heredoc(void);
+void	sigint_handler_heredoc(int sig);
+void	sigint_handler_main(int sig);
 
 //source/_checker
 void	check_quotes(char str, bool *is_single, bool *is_double);

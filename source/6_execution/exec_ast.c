@@ -84,6 +84,7 @@ int exec_command_node(t_node *node, t_env *env_list, int *last_exit, int in_chil
 	if (in_child)
 	{
 		//printf("[exec_command_node] EXECVE direto: %s\n", node->av[0]);
+		setup_signals_child();
 		if (node->heredoc_fd > 0)
 			dup2(node->heredoc_fd, STDIN_FILENO);
 		char **envp = env_to_array(env_list);
@@ -104,6 +105,7 @@ int exec_command_node(t_node *node, t_env *env_list, int *last_exit, int in_chil
     	{
 		//printf("[exec_command_node] EXECVE com fork: %s\n", node->av[0]);
 		//printf("exec_command_node: av[0] = %s\n", node->av[0]);
+		setup_signals_child();
         	execve(resolve_path(node->av[0], env_list), node->av, env_to_array(env_list));
 		if (node->heredoc_fd > 0) 
 			dup2(node->heredoc_fd, STDIN_FILENO);

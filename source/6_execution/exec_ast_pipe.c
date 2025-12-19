@@ -13,13 +13,13 @@ int	exec_pipe_node(t_node *node, t_env *env_list, int *last_exit)
 		return (*last_exit = 1);
 	if (pipe(pipefd) < 0)
 		return (perror("pipe"), *last_exit = 1);
-	pipe(pipefd);
 	left = fork();
 	if (left == 0)
 	{
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
+		setup_signals_child();
 		int code = exec_ast(node->left, env_list, last_exit, 1);
 		exit(code);
 	}
@@ -29,6 +29,7 @@ int	exec_pipe_node(t_node *node, t_env *env_list, int *last_exit)
 		close(pipefd[1]);
 		dup2(pipefd[0], STDIN_FILENO);
 		close(pipefd[0]);
+		setup_signals_child();
 		int code = exec_ast(node->right, env_list, last_exit, 1);
 		exit(code);
 	}

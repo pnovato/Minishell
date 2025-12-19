@@ -29,6 +29,6 @@ int	exec_command_node(t_node *node, t_env *env_list, int *last_exit, int in_chil
 int     exec_redirect(t_node *node, t_env *env_list, int *last_exit, int in_child);
 int     exec_heredoc(t_node *node, t_env *env_list, int *last_exit);
 t_node	*copy_ast(t_node *node);
-void	resolve_heredocs(t_node *node, t_env *env_list, int *last_exit);
+int	resolve_heredocs(t_node *node, t_env *env_list, int *last_exit);
 void	assert_tree_no_heredocs(t_node *node);
 #endif
