@@ -7,6 +7,7 @@
 # include <sys/wait.h>
 # include <sys/types.h>
 # include <signal.h>
+# include <termios.h>
 # include <unistd.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -118,6 +119,9 @@ void    setup_signals_child(void);
 void    setup_signals_heredoc(void);
 void	sigint_handler_heredoc(int sig);
 void	sigint_handler_main(int sig);
+void	setup_signals_waiting(void);
+void	setup_signals_heredoc_child(void);
+//void	enable_echoctl(void);
 
 //source/_checker
 void	check_quotes(char str, bool *is_single, bool *is_double);

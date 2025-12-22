@@ -4,55 +4,51 @@ int	exec_heredoc(t_node *node, t_env *env_list, int *last_exit)
 {
 	char	*line;
 	int	pipe_fd[2];
-	int	saved_stdin = dup(STDIN_FILENO);
+	pid_t	pid;
+	int	status;
 	(void)env_list;
 	(void)*last_exit;
 
 	if (pipe(pipe_fd) == -1)
 		return (1);
-	//printf("[heredoc] heredoc_fd = %d (write-end)\n", pipe_fd[1]);
-	while (1)
+	pid = fork();
+	if (pid == -1)
+        	return (1);
+	if (pid == 0)
 	{
-		setup_signals_heredoc();
-		line = readline("> ");
-		if (g_signal_status == 130)
+		close(pipe_fd[0]);
+		setup_signals_heredoc_child();
+		g_signal_status = 0;
+		while (1)
 		{
+			line = readline("> ");
+			if (!line)
+				break;
+			if (ft_strcmp(line, node->redirect_file) == 0)
+			{
+				free(line);
+				break;
+			}
+			write(pipe_fd[1], line, ft_strlen(line));
+			write(pipe_fd[1], "\n", 1);
 			free(line);
-			dup2(saved_stdin, STDIN_FILENO);
-			close(saved_stdin);
-			close(pipe_fd[1]);
-			return (1);
 		}
-		if (!line || ft_strcmp(line, node->redirect_file) == 0)
-		{
-			free(line);
-			break;
-			//close(pipe_fd[1]);
-			//dup2(saved_stdin, STDIN_FILENO);
-			//close(saved_stdin);
-			//return(1);
-		}
-		//printf("heredoc: linha = [%s]\n", line);
-		write(pipe_fd[1], line, ft_strlen(line));
-		write(pipe_fd[1], "\n", 1);
-		//setup_signals_main();
-		free(line);
+		close(pipe_fd[1]);
+		exit(0);
 	}
-	//printf("[heredoc] fechando pipe write-end (fd=%d)\n", pipe_fd[1]);
 	close(pipe_fd[1]);
-	dup2(saved_stdin, STDIN_FILENO);
-	close(saved_stdin);
+	setup_signals_waiting();
+	waitpid(pid, &status, 0);
+	setup_signals_main();
+	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+	{
+		close(pipe_fd[0]);
+		*last_exit = 130;
+		g_signal_status = 131;
+		return (1);
+	}
 	node->heredoc_fd = pipe_fd[0];
-	//printf("[heredoc] heredoc_fd final = %d (read-end)\n", node->heredoc_fd);
 	node->type = NODE_LREDIRECT;
-	//printf("heredoc: pipe criado com fd = %d\n", pipe_fd[0]);
-	//if (g_signal_status == 130)
-	//{
-       		//int new_stdin = open("/dev/tty", O_RDONLY);
-    		//if (new_stdin >= 0)
-        	//	dup2(new_stdin, STDIN_FILENO);
-		//return (1);
-	//}	
 	return (0);
 }
 

@@ -129,6 +129,7 @@ int main(int ac, char **av, char **envp)
 	(void)ac;
 	(void)av;
 	env_list = envp_to_list(envp);
+	//enable_echoctl();
 	minishell_loop(env_list, &last_exit); 
 	free_env_list(env_list);
 	return (0);
