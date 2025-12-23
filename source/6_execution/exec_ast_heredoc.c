@@ -42,6 +42,7 @@ int	exec_heredoc(t_node *node, t_env *env_list, int *last_exit)
 	setup_signals_main();
 	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
 	{
+		write(1, "\n", 1);
 		close(pipe_fd[0]);
 		*last_exit = 130;
 		g_signal_status = 131;
