@@ -9,7 +9,10 @@ SRC = main.c \
 1_pre_expansion/env_to_list.c \
 2_expansion/expand.c \
 2_expansion/env_size.c \
+2_expansion/expand_utils.c \
 list_utils/new_node.c \
+list_utils/free_1.c \
+list_utils/free_2.c \
 3_built_ins/builtin_cd.c \
 3_built_ins/builtin_pwd.c \
 3_built_ins/builtin_echo.c \
@@ -24,6 +27,7 @@ list_utils/new_node.c \
 4_tokenization/token_aux.c \
 5_parsing/ast.c \
 5_parsing/token_ast_aux.c \
+5_parsing/token_ast_aux_2.c \
 6_execution/env_to_array.c \
 6_execution/is_builtin.c \
 6_execution/join_path.c \
@@ -31,8 +35,13 @@ list_utils/new_node.c \
 6_execution/resolve_path.c \
 6_execution/exec_ast_pipe.c \
 6_execution/exec_ast_redirect.c \
+6_execution/redirect_aux.c \
 6_execution/exec_ast_heredoc.c \
+6_execution/heredoc_aux.c \
 6_execution/exec_ast.c \
+6_execution/ast_aux_1.c \
+6_execution/ast_aux_2.c \
+6_execution/ast_aux_3.c \
 7_signals/setup_main.c \
 7_signals/sigint.c \
 7_signals/sig_heredoc.c \
@@ -56,9 +65,6 @@ $(NAME): $(OBJ) $(LIBFT)
 	@$(CC) $(C_FLAGS) -I$(LIBFT_DIR) -o $(NAME) $(OBJ) $(LIBFT) -lreadline
 
 	@echo "Minishell ready!"
-
-# > /dev/null redireciona o stdout, e nao mostra nada 
-# 2>&1 redireciona os stderr tbm
 
 clean:
 	@echo "Executing cleaning..."

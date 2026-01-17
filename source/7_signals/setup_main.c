@@ -1,6 +1,6 @@
 #include "../../include/minishell.h"
 
-void	setup_signals_main(void)
+void setup_signals_main(void)
 {
 	struct sigaction sa;
 
@@ -10,17 +10,17 @@ void	setup_signals_main(void)
 	sigaction(SIGINT, &sa, NULL);
 }
 
-void	setup_signals_child(void)
+void setup_signals_child(void)
 {
 	struct sigaction sa;
 
 	sigemptyset(&sa.sa_mask);
 	sa.sa_handler = SIG_DFL;
 	sa.sa_flags = 0;
-	sigaction(SIGINT,  &sa, NULL);
+	sigaction(SIGINT, &sa, NULL);
 }
 
-void	setup_signals_heredoc(void)
+void setup_signals_heredoc(void)
 {
 	struct sigaction sa_int;
 	struct sigaction sa_quit;
@@ -34,35 +34,33 @@ void	setup_signals_heredoc(void)
 	sa_quit.sa_flags = 0;
 
 	sigaction(SIGINT, &sa_int, NULL);
-	sigaction(SIGQUIT, &sa_quit, NULL); 
-
+	sigaction(SIGQUIT, &sa_quit, NULL);
 }
 
 void setup_signals_waiting(void)
 {
-    struct sigaction sa;
+	struct sigaction sa;
 
-    sigemptyset(&sa.sa_mask);
-    sa.sa_handler = SIG_IGN;
-    sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = SIG_IGN;
+	sa.sa_flags = 0;
 
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGQUIT, &sa, NULL);
 }
 
 void setup_signals_heredoc_child(void)
 {
-    struct sigaction sa_int;
-    struct sigaction sa_quit;
+	struct sigaction sa_int;
+	struct sigaction sa_quit;
 
-    sigemptyset(&sa_int.sa_mask);
-    sa_int.sa_handler = SIG_DFL;
-    sa_int.sa_flags = 0;
-    sigaction(SIGINT, &sa_int, NULL);
+	sigemptyset(&sa_int.sa_mask);
+	sa_int.sa_handler = SIG_DFL;
+	sa_int.sa_flags = 0;
+	sigaction(SIGINT, &sa_int, NULL);
 
-    sigemptyset(&sa_quit.sa_mask);
-    sa_quit.sa_handler = SIG_IGN;
-    sa_quit.sa_flags = 0;
-    sigaction(SIGQUIT, &sa_quit, NULL);
+	sigemptyset(&sa_quit.sa_mask);
+	sa_quit.sa_handler = SIG_IGN;
+	sa_quit.sa_flags = 0;
+	sigaction(SIGQUIT, &sa_quit, NULL);
 }
-

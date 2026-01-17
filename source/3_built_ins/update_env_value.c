@@ -1,31 +1,70 @@
 #include "../../include/builtins.h"
 
-void	update_env_value(t_env **env, const char *key, const char *value)
+static int set_env_value(t_env *node, const char *value)
 {
-	t_env*curr = *env;
+	char *dup;
 
-	while (curr)
-	{
-		if (ft_strcmp(curr->key, key) == 0)
-		{
-			free(curr->value);
-			curr->value = ft_strdup(value);
-			return ;
-		}
-		curr = curr->next;
-	}
-	t_env *new = malloc(sizeof(t_env));
+	dup = ft_strdup(value);
+	if (!dup)
+		return (0);
+	free(node->value);
+	node->value = dup;
+	return (1);
+}
+
+static t_env *new_env_node(const char *key, const char *value)
+{
+	t_env *new;
+
+	new = malloc(sizeof(t_env));
+	if (!new)
+		return (NULL);
 	new->key = ft_strdup(key);
+	if (!new->key)
+		return (free(new), NULL);
 	new->value = ft_strdup(value);
+	if (!new->value)
+	{
+		free(new->key);
+		free(new);
+		return (NULL);
+	}
 	new->next = NULL;
+	return (new);
+}
+
+static void append_env_node(t_env **env, t_env *new)
+{
+	t_env *cur;
 
 	if (!*env)
-		*env = new;
-	else
 	{
-		curr = *env;
-		while (curr->next)
-			curr = curr->next;
-		curr->next = new;
+		*env = new;
+		return;
 	}
+	cur = *env;
+	while (cur->next)
+		cur = cur->next;
+	cur->next = new;
+}
+
+void update_env_value(t_env **env, const char *key, const char *value)
+{
+	t_env *cur;
+	t_env *new;
+
+	cur = *env;
+	while (cur)
+	{
+		if (ft_strcmp(cur->key, key) == 0)
+		{
+			set_env_value(cur, value);
+			return;
+		}
+		cur = cur->next;
+	}
+	new = new_env_node(key, value);
+	if (!new)
+		return;
+	append_env_node(env, new);
 }

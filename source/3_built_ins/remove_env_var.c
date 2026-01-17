@@ -1,10 +1,12 @@
 #include "../../include/builtins.h"
 
-void	remove_env_var(t_env **env, const char *key)
+void remove_env_var(t_env **env, const char *key)
 {
-	t_env *prev = NULL;
-	t_env *curr = *env;
+	t_env *prev;
+	t_env *curr;
 
+	prev = NULL;
+	curr = *env;
 	while (curr)
 	{
 		if (ft_strcmp(curr->key, key) == 0)
@@ -16,7 +18,7 @@ void	remove_env_var(t_env **env, const char *key)
 			free(curr->key);
 			free(curr->value);
 			free(curr);
-			return ;
+			return;
 		}
 		prev = curr;
 		curr = curr->next;

@@ -1,6 +1,6 @@
 #include "../../include/builtins.h"
 
-static char	*get_target_path(char **args)
+static char *get_target_path(char **args)
 {
 	if (args[1] && ft_strcmp(args[1], "-") == 0)
 		return (getenv("OLDPWD"));
@@ -9,28 +9,29 @@ static char	*get_target_path(char **args)
 	return (getenv("HOME"));
 }
 
-void	builtin_cd(char **args, t_env *env_list)
+int builtin_cd(char **args, t_env *env_list)
 {
-	char	cwd[1024];
-	char	*path;
+	char cwd[1024];
+	char *path;
 
 	(void)env_list;
 	path = get_target_path(args);
 	if (!path)
 	{
-		ft_putendl_fd("cd: HOME not set", 2);
-		return ;
+		ft_putendl_fd("minishell: cd: HOME not set\n", 2);
+		return (1);
 	}
 	if (args[1] && ft_strcmp(args[1], "-") == 0)
 		ft_printf("%s\n", path);
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
 	{
-		perror("cd: getcwd");
-		return ;
+		perror("getcwd");
+		return (1);
 	}
 	if (chdir(path) != 0)
 	{
 		perror("cd");
-		return ;
+		return (1);
 	}
+	return (0);
 }
