@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   node_type_checker.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/15 14:47:15 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 14:47:28 by pnovato-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/minishell.h"
 
-t_node_type check_token_type(char *str)
+t_type	check_token_type(char *str)
 {
 	if (!str)
 		return (NODE_COMMAND);
@@ -23,7 +35,7 @@ t_node_type check_token_type(char *str)
 	return (NODE_COMMAND);
 }
 
-const char *node_type_str(t_node_type type)
+char	*node_type_str(t_type type)
 {
 	if (type == NODE_COMMAND)
 		return ("COMMAND");

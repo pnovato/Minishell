@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   join_path.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/23 12:34:02 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/23 14:38:40 by matheusless      ###   ########.fr       */
+/*   Created: 2026/01/15 15:30:40 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:30:52 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

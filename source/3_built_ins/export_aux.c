@@ -1,26 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   join_key_value.c                                   :+:      :+:    :+:   */
+/*   export_aux.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/15 15:30:22 by pnovato-          #+#    #+#             */
-/*   Updated: 2026/01/15 15:30:28 by pnovato-         ###   ########.fr       */
+/*   Created: 2026/01/15 16:38:25 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 16:46:28 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-char	*join_key_value(const char *key, const char *value)
+t_env	*find_env_node(t_env *env, char *key)
 {
-	char	*tmp;
-	char	*result;
+	while (env)
+	{
+		if (ft_strcmp(env->key, key) == 0)
+			return (env);
+		env = env->next;
+	}
+	return (NULL);
+}
 
-	tmp = ft_strjoin(key, "=");
-	if (!tmp)
-		return (NULL);
-	result = ft_strjoin(tmp, value);
-	free(tmp);
-	return (result);
+void	ensure_env_key(t_env **env, char *key)
+{
+	if (find_env_node(*env, key))
+		return ;
+	update_env_value(env, key, "");
 }

@@ -1,12 +1,54 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   line_to_token.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/15 15:02:49 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:03:47 by pnovato-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/minishell.h"
 
-t_token	*new_token(char *value, t_node_type type)
+int	handle_double_redir(char *line, int *i, int *start, t_token **tok)
 {
-	t_token *token = malloc(sizeof(t_token));
+	if (line[*i] == '>' && line[*i + 1] == '>')
+	{
+		init_token_slice(tok, line, *start, *i);
+		init_token_slice(tok, line, *i, *i + 2);
+		*i += 2;
+		*start = *i;
+		return (1);
+	}
+	if (line[*i] == '<' && line[*i + 1] == '<')
+	{
+		init_token_slice(tok, line, *start, *i);
+		init_token_slice(tok, line, *i, *i + 2);
+		*i += 2;
+		*start = *i;
+		return (1);
+	}
+	return (0);
+}
+
+t_token	*new_token(char *value, t_type type)
+{
+	t_token	*token;
+
+	token = malloc(sizeof(t_token));
 	if (!token)
 		return (NULL);
 	token->raw_value = ft_strdup(value);
 	token->value = ft_strdup(value);
+	if (!token->raw_value || !token->value)
+	{
+		free(token->raw_value);
+		free(token->value);
+		free(token);
+		return (NULL);
+	}
 	token->type = type;
 	token->next = NULL;
 	return (token);
@@ -14,11 +56,15 @@ t_token	*new_token(char *value, t_node_type type)
 
 void	init_token_slice(t_token **lst, char *line, int start, int end)
 {
-	char		*value;
-	t_node_type	type;
-	t_token		*new;
-	
+	char	*value;
+	t_type	type;
+	t_token	*new;
+
+	if (end <= start)
+		return ;
 	value = ft_substr(line, start, end - start);
+	if (!value)
+		return ;
 	type = check_token_type(value);
 	new = new_token(value, type);
 	free(value);
@@ -26,74 +72,43 @@ void	init_token_slice(t_token **lst, char *line, int start, int end)
 		token_add_back(lst, new);
 }
 
-
 t_token	*split_line_to_token(char *line)
 {
-	int	i;
-	int	start;
+	int		i;
+	int		start;
 	t_token	*token;
 	t_quote	q;
+	t_lex	lx;
 
 	i = 0;
 	start = 0;
 	token = NULL;
 	q.is_single = false;
 	q.is_double = false;
+	lx = init_lex(&i, &start, &token, &q);
 	while (line[i])
-	{
-		check_quotes(line[i], &q.is_single, &q.is_double);
-		if (!q.is_single && !q.is_double)
-		{
-			if (line[i] == '>' && line[i+1] == '>')
-			{
-				if (i > start)
-					init_token_slice(&token, line, start, i);
-				init_token_slice(&token, line, i, i + 2);
-				i += 2;
-				start = i;
-				continue;
-			}
-			else if (line[i] == '<' && line[i+1] == '<')
-			{
-				init_token_slice(&token, line, start, i);
-                                init_token_slice(&token, line, i, i + 2);
-                                i += 2;
-                                start = i;
-                                continue;
-			}
-		}
-		if (check_parenthesis_token(line, &i, &start, &token, &q))
-                        continue;
-                if (check_space_token(line, &i, &start, &token, &q))
-                        continue;
-		i++;
-	}
-	if (i > start)
-		init_token_slice(&token, line, start, i);
+		tokenize_step(line, &lx);
+	init_token_slice(&token, line, start, i);
 	return (token);
 }
 
 char	**token_list_to_args(t_token *token)
 {
-	int		count = 0;
-	t_token	*tmp = token;
 	char	**args;
+	int		i;
 
-	while (tmp)
-	{
-		count++;
-		tmp = tmp->next;
-	}
-	args = malloc(sizeof(char *) * (count + 1));
+	args = malloc(sizeof(char *) * (token_count(token) + 1));
 	if (!args)
 		return (NULL);
-	count = 0;
+	i = 0;
 	while (token)
 	{
-		args[count++] = ft_strdup(token->value);
+		args[i] = ft_strdup(token->value);
+		if (!args[i])
+			return (free_args_partial(args, i), NULL);
+		i++;
 		token = token->next;
 	}
-	args[count] = NULL;
+	args[i] = NULL;
 	return (args);
 }
-

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_to_array.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/23 12:32:19 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/23 14:46:35 by matheusless      ###   ########.fr       */
+/*   Created: 2026/01/15 15:23:31 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:23:31 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,13 @@
 
 char	**env_to_array(t_env *env)
 {
-	int		count = env_size(env);
-	char	**envp = malloc(sizeof(char *) * (count + 1));
-	int		i = 0;
+	int		count;
+	char	**envp;
+	int		i;
 
+	count = env_size(env);
+	envp = malloc(sizeof(char *) * (count + 1));
+	i = 0;
 	if (!envp)
 		return (NULL);
 	while (env)

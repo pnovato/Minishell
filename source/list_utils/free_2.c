@@ -1,37 +1,53 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sig_heredoc.c                                      :+:      :+:    :+:   */
+/*   free_2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/15 15:35:32 by pnovato-          #+#    #+#             */
-/*   Updated: 2026/01/15 15:35:36 by pnovato-         ###   ########.fr       */
+/*   Created: 2026/01/15 15:38:37 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:38:52 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-void	sigint_handler_heredoc(int sig)
+void	free_ast(t_node *node)
 {
-	(void)sig;
-	g_signal_status = 130;
-	write(1, "\n", 1);
+	int	i;
+
+	if (!node)
+		return ;
+	if (node->av)
+	{
+		i = 0;
+		while (node->av[i])
+		{
+			free(node->av[i]);
+			i++;
+		}
+		free(node->av);
+	}
+	if (node->redirect_file)
+		free(node->redirect_file);
+	free_ast(node->left);
+	free_ast(node->right);
+	free(node);
 }
 
-void	sigint_handler_main(int sig)
+void	free_line(char **line)
 {
-	(void)sig;
-	if (g_signal_status == 131)
+	if (*line)
 	{
-		g_signal_status = 130;
-		rl_on_new_line();
-		rl_redisplay();
-		return ;
+		free(*line);
+		*line = NULL;
 	}
-	g_signal_status = 130;
-	write(STDOUT_FILENO, "\n", 1);
-	rl_replace_line("", 0);
-	rl_on_new_line();
-	rl_redisplay();
+}
+
+void	free_ast_ptr(t_node **ast)
+{
+	if (!ast || !*ast)
+		return ;
+	free_ast(*ast);
+	*ast = NULL;
 }

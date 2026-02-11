@@ -1,94 +1,84 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/15 15:05:18 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:05:57 by pnovato-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/minishell.h"
 
-t_node  *build_ast(t_token *start, t_token *end)
+t_node	*build_ast(t_token *start, t_token *end)
 {
 	t_token	*op;
-	t_node	*cmd;
 	char	**args;
-	
+
 	op = find_last_operator(start, end);
 	if (op)
 		return (alloc_type(start, end, op));
 	args = token_op_to_args(start, end);
 	if (!args)
 		return (NULL);
-	cmd = malloc(sizeof(t_node));
-	if (!cmd)
-		return NULL;
-       //printf("build_ast: intervalo [%s] ... [%s]\n", start->value, end->value);
-	cmd->type = NODE_COMMAND;
-	cmd->av = args;
-	cmd->redirect_file = NULL;
-	cmd->redirect_type = 0;
-	cmd->heredoc_fd = -1;
-	cmd->left = NULL;
-	cmd->right = NULL;
-	return (cmd);
+	return (new_cmd_node(args));
 }
 
+t_node	*alloc_type(t_token *start, t_token *end, t_token *op)
+{
+	t_node	*node;
 
-t_node  *alloc_type(t_token *start, t_token *end, t_token *op)
-{       
-        t_node	*node;
-	t_token	*op_prev;
-	t_token	*op_next;
-	
-	op_prev = op_before(start, op);
-	op_next = op->next;
-
-	if (!start || !end || !op || !op_next)
+	if (!start || !end || !op || !op->next)
 		return (NULL);
-	
-	node = malloc(sizeof(t_node));
+	node = new_op_node(check_token_type(op->value));
 	if (!node)
 		return (NULL);
-	node->type = check_token_type(op->value);
-	node->av = NULL;
-	node->redirect_file = NULL;
-	node->left = NULL;
-	node->right = NULL;
-
-        if (node->type == NODE_HEREDOC)
-        {
-                node->left = build_ast(start, op_prev);
-                node->redirect_file = ft_strdup(op_next->value);
-                node->right = NULL;
-                if (!node->left || !node->redirect_file)
-                {
-                        free(node->redirect_file);
-                        free(node);
-                        return (NULL);
-                }
-                return (node);
-        }
-
-
 	if (node->type == NODE_PIPE)
-	{
-		node->left = build_ast(start, op_prev);
-		node->right = build_ast(op_next, end);
-		
-		if (!node->left || !node->right)
-		{
-			free(node);
-			return (NULL);
-		}
-		return (node);
-	}
-
-	if (node->type == NODE_RREDIRECT || node->type == NODE_LREDIRECT || node->type == NODE_APPEND)
-	{
-		node->left = build_ast(start, op_prev);
-		node->redirect_file = ft_strdup(op_next->value);
-		node->right = NULL;
-		if (!node->left || !node->redirect_file)
-		{
-			free(node->redirect_file);
-			free(node);
-			return (NULL);
-		}
-		return (node);
-	}
+		return (pipe_from_tokens(node, start, end, op));
+	if (node->type == NODE_HEREDOC || is_redirect_type(node->type))
+		return (redirect_from_tokens(node, start, op));
 	free(node);
 	return (NULL);
+}
+
+t_token	*ft_lstlast_token(t_token *token)
+{
+	if (!token)
+		return (NULL);
+	while (token->next)
+		token = token->next;
+	return (token);
+}
+
+t_token	*find_last_operator(t_token *start, t_token *end)
+{
+	t_token	*last_op;
+	t_token	*tmp;
+
+	last_op = NULL;
+	tmp = start;
+	while (tmp && tmp != end->next)
+	{
+		if (check_token_type(tmp->value) != NODE_COMMAND)
+			last_op = tmp;
+		tmp = tmp->next;
+	}
+	return (last_op);
+}
+
+t_token	*op_before(t_token *start, t_token *target)
+{
+	t_token	*tmp;
+	t_token	*before;
+
+	tmp = start;
+	before = NULL;
+	while (tmp && tmp != target)
+	{
+		before = tmp;
+		tmp = tmp->next;
+	}
+	return (before);
 }
