@@ -1,46 +1,53 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env_size.c                                         :+:      :+:    :+:   */
+/*   free_2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/15 14:49:14 by pnovato-          #+#    #+#             */
-/*   Updated: 2026/01/15 14:49:40 by pnovato-         ###   ########.fr       */
+/*   Created: 2026/01/15 15:38:37 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:38:52 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int	env_size(t_env *env)
-{
-	int	count;
-
-	count = 0;
-	while (env)
-	{
-		count++;
-		env = env->next;
-	}
-	return (count);
-}
-
-void	expand_loop(char *buffer, char **result, t_expand_ctx *ctx)
+void	free_ast(t_node *node)
 {
 	int	i;
-	int	sq;
-	int	dq;
 
-	i = 0;
-	sq = 0;
-	dq = 0;
-	while (buffer[i])
+	if (!node)
+		return ;
+	if (node->av)
 	{
-		update_quotes(buffer[i], &sq, &dq);
-		if (buffer[i] == '$' && !sq)
-			handle_dollar(result, buffer, &i, ctx);
-		else
-			append_char_to_result(result, buffer[i]);
-		i++;
+		i = 0;
+		while (node->av[i])
+		{
+			free(node->av[i]);
+			i++;
+		}
+		free(node->av);
 	}
+	if (node->redirect_file)
+		free(node->redirect_file);
+	free_ast(node->left);
+	free_ast(node->right);
+	free(node);
+}
+
+void	free_line(char **line)
+{
+	if (*line)
+	{
+		free(*line);
+		*line = NULL;
+	}
+}
+
+void	free_ast_ptr(t_node **ast)
+{
+	if (!ast || !*ast)
+		return ;
+	free_ast(*ast);
+	*ast = NULL;
 }

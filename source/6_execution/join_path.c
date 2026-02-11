@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   join_key_value.c                                   :+:      :+:    :+:   */
+/*   join_path.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/23 12:35:51 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/23 14:38:35 by matheusless      ###   ########.fr       */
+/*   Created: 2026/01/15 15:30:40 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:30:52 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-char	*join_key_value(const char *key, const char *value)
+char	*join_path(const char *dir, const char *cmd)
 {
 	char	*tmp;
-	char	*result;
+	char	*full;
 
-	tmp = ft_strjoin(key, "=");
+	tmp = ft_strjoin(dir, "/");
 	if (!tmp)
 		return (NULL);
-	result = ft_strjoin(tmp, value);
+	full = ft_strjoin(tmp, cmd);
 	free(tmp);
-	return (result);
+	return (full);
 }

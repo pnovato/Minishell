@@ -1,32 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   builtin_env.c                                      :+:      :+:    :+:   */
+/*   env_to_array.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/15 14:55:29 by pnovato-          #+#    #+#             */
-/*   Updated: 2026/01/15 14:55:36 by pnovato-         ###   ########.fr       */
+/*   Created: 2026/01/15 15:23:31 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:23:31 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/builtins.h"
+#include "../../include/minishell.h"
 
-int	builtin_env(t_env *env)
+char	**env_to_array(t_env *env)
 {
-	t_env	*curr;
+	int		count;
+	char	**envp;
+	int		i;
 
-	curr = env;
-	while (curr)
+	count = env_size(env);
+	envp = malloc(sizeof(char *) * (count + 1));
+	i = 0;
+	if (!envp)
+		return (NULL);
+	while (env)
 	{
-		if (curr->value)
-		{
-			ft_putstr_fd(curr->key, 1);
-			ft_putchar_fd('=', 1);
-			ft_putstr_fd(curr->value, 1);
-			ft_putchar_fd('\n', 1);
-		}
-		curr = curr->next;
+		envp[i++] = join_key_value(env->key, env->value);
+		env = env->next;
 	}
-	return (0);
+	envp[i] = NULL;
+	return (envp);
 }

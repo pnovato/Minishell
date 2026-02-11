@@ -1,30 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env_to_array.c                                     :+:      :+:    :+:   */
+/*   join_key_value.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/23 12:32:19 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/23 14:46:35 by matheusless      ###   ########.fr       */
+/*   Created: 2026/01/15 15:30:22 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:30:28 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-char	**env_to_array(t_env *env)
+char	*join_key_value(const char *key, const char *value)
 {
-	int		count = env_size(env);
-	char	**envp = malloc(sizeof(char *) * (count + 1));
-	int		i = 0;
+	char	*tmp;
+	char	*result;
 
-	if (!envp)
+	tmp = ft_strjoin(key, "=");
+	if (!tmp)
 		return (NULL);
-	while (env)
-	{
-		envp[i++] = join_key_value(env->key, env->value);
-		env = env->next;
-	}
-	envp[i] = NULL;
-	return (envp);
+	result = ft_strjoin(tmp, value);
+	free(tmp);
+	return (result);
 }

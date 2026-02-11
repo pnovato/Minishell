@@ -1,26 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   join_path.c                                        :+:      :+:    :+:   */
+/*   export_aux.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matheuslessa <matheuslessa@student.42.f    +#+  +:+       +#+        */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/23 12:34:02 by matheusless       #+#    #+#             */
-/*   Updated: 2025/10/23 14:38:40 by matheusless      ###   ########.fr       */
+/*   Created: 2026/01/15 16:38:25 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 16:46:28 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-char	*join_path(const char *dir, const char *cmd)
+t_env	*find_env_node(t_env *env, char *key)
 {
-	char	*tmp;
-	char	*full;
+	while (env)
+	{
+		if (ft_strcmp(env->key, key) == 0)
+			return (env);
+		env = env->next;
+	}
+	return (NULL);
+}
 
-	tmp = ft_strjoin(dir, "/");
-	if (!tmp)
-		return (NULL);
-	full = ft_strjoin(tmp, cmd);
-	free(tmp);
-	return (full);
+void	ensure_env_key(t_env **env, char *key)
+{
+	if (find_env_node(*env, key))
+		return ;
+	update_env_value(env, key, "");
 }

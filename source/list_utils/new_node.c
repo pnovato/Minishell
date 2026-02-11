@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   new_node.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/15 15:38:57 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:39:09 by pnovato-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/minishell.h"
 
 t_env	*create_env_node(char *key, char *value)
@@ -14,30 +26,4 @@ t_env	*create_env_node(char *key, char *value)
 	new->value = value;
 	new->next = NULL;
 	return (new);
-}
-
-void	free_env_list(t_env *env)
-{
-	t_env	*temp;
-
-	while (env)
-	{
-		temp = env->next;
-		free(env->key);
-		free(env->value);
-		free(env);
-		env = temp;	
-	}
-}
-
-void	free_token_list(t_token *token)
-{
-	t_token	*temp;
-	while (token)
-	{
-		temp = token->next;
-		free(token->value);
-		free(token);
-		token = temp;
-	}
 }

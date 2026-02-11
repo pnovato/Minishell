@@ -1,32 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   builtin_env.c                                      :+:      :+:    :+:   */
+/*   sig_heredoc.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/15 14:55:29 by pnovato-          #+#    #+#             */
-/*   Updated: 2026/01/15 14:55:36 by pnovato-         ###   ########.fr       */
+/*   Created: 2026/01/15 15:35:32 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:35:36 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/builtins.h"
+#include "../../include/minishell.h"
 
-int	builtin_env(t_env *env)
+void	sigint_handler_heredoc(int sig)
 {
-	t_env	*curr;
+	(void)sig;
+	g_signal_status = 130;
+	write(1, "\n", 1);
+}
 
-	curr = env;
-	while (curr)
+void	sigint_handler_main(int sig)
+{
+	(void)sig;
+	if (g_signal_status == 131)
 	{
-		if (curr->value)
-		{
-			ft_putstr_fd(curr->key, 1);
-			ft_putchar_fd('=', 1);
-			ft_putstr_fd(curr->value, 1);
-			ft_putchar_fd('\n', 1);
-		}
-		curr = curr->next;
+		g_signal_status = 130;
+		rl_on_new_line();
+		rl_redisplay();
+		return ;
 	}
-	return (0);
+	g_signal_status = 130;
+	write(STDOUT_FILENO, "\n", 1);
+	rl_replace_line("", 0);
+	rl_on_new_line();
+	rl_redisplay();
 }

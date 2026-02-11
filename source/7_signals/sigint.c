@@ -1,32 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   builtin_env.c                                      :+:      :+:    :+:   */
+/*   sigint.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnovato- <pnovato-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/15 14:55:29 by pnovato-          #+#    #+#             */
-/*   Updated: 2026/01/15 14:55:36 by pnovato-         ###   ########.fr       */
+/*   Created: 2026/01/15 15:35:56 by pnovato-          #+#    #+#             */
+/*   Updated: 2026/01/15 15:36:18 by pnovato-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/builtins.h"
+#include "../../include/minishell.h"
 
-int	builtin_env(t_env *env)
+void	handle_sigint(int sig)
 {
-	t_env	*curr;
-
-	curr = env;
-	while (curr)
-	{
-		if (curr->value)
-		{
-			ft_putstr_fd(curr->key, 1);
-			ft_putchar_fd('=', 1);
-			ft_putstr_fd(curr->value, 1);
-			ft_putchar_fd('\n', 1);
-		}
-		curr = curr->next;
-	}
-	return (0);
+	(void)sig;
+	write(1, "\n", 1);
+	rl_on_new_line();
+	rl_replace_line("", 0);
+	rl_redisplay();
 }
